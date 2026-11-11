@@ -34,6 +34,7 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 // 4. Core Business Services
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IResumeTextExtractor, ResumeTextExtractor>();
+builder.Services.AddScoped<IResumeAnalysisService, ResumeAnalysisService>();
 
 var app = builder.Build();
 
