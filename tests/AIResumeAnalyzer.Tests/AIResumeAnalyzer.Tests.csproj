@@ -23,4 +23,15 @@
     <ProjectReference Include="..\..\src\AIResumeAnalyzer\AIResumeAnalyzer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- Auto-signs output DLLs on Windows to satisfy Smart App Control policies -->
+  <Target Name="AutoSignTestAssemblies" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <Exec Command="powershell -NoProfile -Command &quot;$cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1; if ($cert) { Set-AuthenticodeSignature -Certificate $cert -FilePath '$(TargetPath)' -ErrorAction SilentlyContinue | Out-Null; if (Test-Path '$(TargetDir)AIResumeAnalyzer.dll') { Set-AuthenticodeSignature -Certificate $cert -FilePath '$(TargetDir)AIResumeAnalyzer.dll' -ErrorAction SilentlyContinue | Out-Null } }&quot;" ContinueOnError="true" />
+  </Target>
+
 </Project>
