@@ -1,0 +1,171 @@
+@model AIResumeAnalyzer.Models.AdminDashboardSummary
+@{
+    ViewData["Title"] = "Admin Center - AI Resume Analyzer";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-danger rounded-pill px-3 py-1">System Administration</span>
+                <span class="badge bg-light text-muted border">Live SQL Server ADO.NET Queries</span>
+            </div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-shield-lock-fill text-danger me-2"></i>Platform Analytics &amp; Control</h2>
+            <p class="text-muted mb-0">System-wide operational telemetry, user directories, and compatibility distributions</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Users" class="btn btn-outline-danger rounded-pill px-4">
+                <i class="bi bi-people me-1"></i>Manage Users (@Model.TotalUsers)
+            </a>
+        </div>
+    </div>
+
+    <partial name="_NotificationPartial" />
+
+    <!-- System Telemetry Metric Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover border-top border-4 border-primary">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Total Users</span>
+                    <span class="p-2 rounded-circle bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-people-fill fs-5"></i>
+                    </span>
+                </div>
+                <h2 class="fw-bold mb-0">@Model.TotalUsers</h2>
+                <small class="text-muted mt-1 d-block"><a asp-action="Users" class="text-decoration-none">Manage accounts &rarr;</a></small>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover border-top border-4 border-info">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Resumes Stored</span>
+                    <span class="p-2 rounded-circle bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-file-earmark-person-fill fs-5"></i>
+                    </span>
+                </div>
+                <h2 class="fw-bold mb-0">@Model.TotalResumes</h2>
+                <small class="text-muted mt-1 d-block">Secure GUID storage</small>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover border-top border-4 border-success">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Analyses Run</span>
+                    <span class="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-cpu-fill fs-5"></i>
+                    </span>
+                </div>
+                <h2 class="fw-bold mb-0">@Model.TotalAnalyses</h2>
+                <small class="text-muted mt-1 d-block">Evaluated against JDs</small>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover border-top border-4 border-warning">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">System Average</span>
+                    <span class="p-2 rounded-circle bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-speedometer2 fs-5"></i>
+                    </span>
+                </div>
+                <h2 class="fw-bold mb-0 text-warning">@Model.SystemAverageScore.ToString("F1")%</h2>
+                <small class="text-muted mt-1 d-block">Platform-wide average match</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent User Registrations -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-person-lines-fill text-primary me-2"></i>Recent User Accounts</h5>
+                    <a asp-action="Users" class="small fw-semibold text-decoration-none">Full Directory &rarr;</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-muted">
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model.RecentUsers)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">@u.FullName</div>
+                                        <small class="text-muted">@u.Email</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(u.Role == "Admin" ? "bg-danger" : "bg-primary") rounded-pill">
+                                            @u.Role
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(u.IsActive ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger") rounded-pill">
+                                            @(u.IsActive ? "Active" : "Disabled")
+                                        </span>
+                                    </td>
+                                    <td><small class="text-muted">@u.CreatedAt.ToString("MMM dd, yyyy")</small></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Platform Analyses -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-activity text-success me-2"></i>Recent Analysis Activity</h5>
+                    <span class="small text-muted">Last 5 evaluations</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-muted">
+                            <tr>
+                                <th>Candidate / Position</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                                <th class="text-end">Report</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var a in Model.RecentAnalyses)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">@a.JobTitle</div>
+                                        <small class="text-muted">@(a.UserFullName ?? "Candidate") · @(a.ResumeFileName)</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(a.OverallScore >= 75 ? "bg-success" : a.OverallScore >= 50 ? "bg-warning text-dark" : "bg-danger") rounded-pill">
+                                            @a.OverallScore.ToString("F1")%
+                                        </span>
+                                    </td>
+                                    <td><small class="text-muted">@a.CreatedAt.ToString("MMM dd")</small></td>
+                                    <td class="text-end">
+                                        <a asp-controller="Analysis" asp-action="Result" asp-route-id="@a.AnalysisId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            Audit
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

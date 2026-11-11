@@ -1,5 +1,6 @@
 using AIResumeAnalyzer.Data;
 using AIResumeAnalyzer.Interfaces;
+using AIResumeAnalyzer.Middleware;
 using AIResumeAnalyzer.Repositories;
 using AIResumeAnalyzer.Services;
 
@@ -8,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Ensure managed networking for SQL Server on Windows
 AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.UseManagedNetworkingOnWindows", true);
 
-// 1. MVC Controllers & Views
+// 1. MVC Controllers, Web API & Razor Views
 builder.Services.AddControllersWithViews();
 
 // 2. HTTP Context & Session Management
@@ -38,6 +39,10 @@ builder.Services.AddScoped<IResumeAnalysisService, ResumeAnalysisService>();
 
 var app = builder.Build();
 
+// 5. Custom Security & Exception Middleware
+app.UseMiddleware<SecurityHeadersMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -55,6 +60,10 @@ app.UseSession();
 
 app.UseAuthorization();
 
+// Route Web API Controllers (e.g., /api/resumes, /api/analyses, /api/users)
+app.MapControllers();
+
+// Route MVC Views
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
