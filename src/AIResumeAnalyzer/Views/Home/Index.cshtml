@@ -1,8 +1,266 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "AI Resume Analyzer - Explainable ATS Compatibility Platform";
+    var session = HttpContextAccessor.HttpContext?.Session;
+    int? userId = session?.GetInt32(SessionKeys.UserId);
+    bool isLoggedIn = userId.HasValue && userId.Value > 0;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-lg-4">
+        <div class="row align-items-center g-5">
+            <div class="col-12 col-lg-7">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-primary bg-opacity-10 text-primary small fw-semibold mb-3">
+                    <i class="bi bi-mortarboard-fill"></i> B.Tech Computer Engineering · Semester 5 Academic Project
+                </div>
+                <h1 class="display-4 fw-extrabold text-dark lh-sm mb-3">
+                    Optimize Your Resume with <span class="text-primary">Explainable AI</span> Compatibility Benchmarks.
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Stop guessing why applications get screened out. Upload your PDF or DOCX resume, paste any target job description, and receive immediate ATS-style compatibility scores, matched skills, missing technical gaps, and actionable suggestions.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    @if (isLoggedIn)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Your Dashboard
+                        </a>
+                        <a asp-controller="Analysis" asp-action="Create" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                            <i class="bi bi-cpu me-2"></i>Run New Analysis
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-lightning-charge me-2"></i>Get Started Free
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In (Faculty Demo)
+                        </a>
+                    }
+                </div>
+
+                <div class="d-flex align-items-center gap-4 text-muted small">
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle-fill text-success"></i> 100% C# .NET 10 LTS
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle-fill text-success"></i> Pure ADO.NET
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle-fill text-success"></i> Microsoft SQL Server
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <!-- Interactive Preview Card -->
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-dark text-white p-3 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="p-1 rounded-circle bg-danger d-inline-block" style="width: 10px; height: 10px;"></span>
+                            <span class="p-1 rounded-circle bg-warning d-inline-block" style="width: 10px; height: 10px;"></span>
+                            <span class="p-1 rounded-circle bg-success d-inline-block" style="width: 10px; height: 10px;"></span>
+                            <small class="ms-2 text-white-50">Live Evaluation Preview</small>
+                        </div>
+                        <span class="badge bg-success rounded-pill">85.0% Match</span>
+                    </div>
+
+                    <div class="card-body p-4 bg-light">
+                        <div class="text-center mb-3">
+                            <div class="score-badge-circle score-high mb-2" style="width: 100px; height: 100px;">
+                                <span class="score-number fs-1">85%</span>
+                            </div>
+                            <h6 class="fw-bold mb-0">.NET Core Backend Engineer</h6>
+                            <small class="text-muted">Target Company: TechNova Solutions</small>
+                        </div>
+
+                        <!-- Matched Skills Preview Chips -->
+                        <div class="mb-3">
+                            <small class="fw-bold text-muted text-uppercase d-block mb-1">Matched Competencies</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1">C#</span>
+                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1">ASP.NET Core</span>
+                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1">SQL Server</span>
+                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1">ADO.NET</span>
+                                <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1">REST API</span>
+                            </div>
+                        </div>
+
+                        <!-- Missing Skills Preview Chips -->
+                        <div class="mb-3">
+                            <small class="fw-bold text-muted text-uppercase d-block mb-1">Identified Gaps</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-2 py-1">Docker</span>
+                                <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-2 py-1">Machine Learning</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-2 rounded-3 border small text-muted">
+                            <i class="bi bi-lightbulb-fill text-warning me-1"></i>
+                            <strong>Recommendation:</strong> Add containerization examples or dockerfile usage to your portfolio projects.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3-Step Workflow -->
+<section class="py-5" id="how-it-works">
+    <div class="container py-lg-4 text-center">
+        <h6 class="text-primary text-uppercase fw-bold letter-spacing-1 mb-2">How It Works</h6>
+        <h2 class="fw-bold mb-5">Seamless 3-Step Compatibility Pipeline</h2>
+
+        <div class="row g-4">
+            <div class="col-12 col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 card-hover">
+                    <div class="mx-auto mb-3 p-3 rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
+                        <i class="bi bi-cloud-arrow-up fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">1. Upload Resume</h5>
+                    <p class="text-muted small mb-0">
+                        Upload your resume in PDF or DOCX format. Our .NET extraction engine verifies file signatures and parses structured technical text.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 card-hover">
+                    <div class="mx-auto mb-3 p-3 rounded-circle bg-info bg-opacity-10 text-info d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
+                        <i class="bi bi-file-earmark-text fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">2. Paste Job Posting</h5>
+                    <p class="text-muted small mb-0">
+                        Paste the full job specification. The engine tokenizes technical requirements, seniority clues, and degree prerequisites.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 card-hover">
+                    <div class="mx-auto mb-3 p-3 rounded-circle bg-success bg-opacity-10 text-success d-inline-flex" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
+                        <i class="bi bi-speedometer fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">3. Receive Benchmark &amp; Report</h5>
+                    <p class="text-muted small mb-0">
+                        View transparent 4-pillar scores, matched vs missing skills, prioritized recommendations, and download a printable evaluation report.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4-Pillar Scoring Methodology -->
+<section class="py-5 bg-white border-top border-bottom" id="methodology">
+    <div class="container py-lg-4">
+        <div class="text-center mb-5">
+            <h6 class="text-primary text-uppercase fw-bold letter-spacing-1 mb-2">Explainable AI Architecture</h6>
+            <h2 class="fw-bold mb-2">4-Pillar Weighted Evaluation Engine</h2>
+            <p class="text-muted">Configurable, transparent, and mathematically explainable scoring without black-box guessing.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="badge bg-primary rounded-pill px-3 py-1">40% Weight</span>
+                        <i class="bi bi-code-slash text-primary fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Technical Skills</h5>
+                    <p class="text-muted small mb-0">
+                        Evaluates core taxonomy matches: C#, ASP.NET Core, SQL Server, ADO.NET, REST APIs, Git, OOP, Data Structures, and Algorithms.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="badge bg-info text-dark rounded-pill px-3 py-1">25% Weight</span>
+                        <i class="bi bi-fonts text-info fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Keyword Overlap</h5>
+                    <p class="text-muted small mb-0">
+                        Removes natural language stop-words and evaluates lexical n-gram similarity between the job description and candidate resume.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="badge bg-success rounded-pill px-3 py-1">20% Weight</span>
+                        <i class="bi bi-briefcase text-success fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Experience Context</h5>
+                    <p class="text-muted small mb-0">
+                        Detects production action verbs (developed, architected, engineered) and capstone scope to benchmark candidate seniority.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1">15% Weight</span>
+                        <i class="bi bi-mortarboard text-warning fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Education &amp; Degree</h5>
+                    <p class="text-muted small mb-0">
+                        Detects relevant accredited degree titles (B.Tech, B.E., B.Sc, M.Tech, MCA) and foundational Computer Science coursework.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Academic Capstone Project & Team Collaboration -->
+<section class="py-5 bg-light" id="team">
+    <div class="container py-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="row align-items-center g-4">
+                <div class="col-12 col-lg-6">
+                    <h6 class="text-primary text-uppercase fw-bold letter-spacing-1 mb-2">Academic Capstone Evaluation</h6>
+                    <h3 class="fw-bold text-dark mb-3">B.Tech Computer Engineering · Semester 5</h3>
+                    <p class="text-muted small mb-3">
+                        This web application was engineered for the <strong>.NET Technologies</strong> curriculum demonstration, strictly adhering to the mandated syllabus requirements:
+                    </p>
+                    <ul class="text-muted small ps-3 mb-0">
+                        <li class="mb-2"><strong>Architecture:</strong> Model-View-Controller (MVC) with dependency injection and separation of concerns.</li>
+                        <li class="mb-2"><strong>Database Layer:</strong> Microsoft SQL Server accessed strictly via <strong>ADO.NET</strong> (SqlConnection, SqlCommand, SqlDataReader, SqlDataAdapter, DataSet, DataTable, and SqlTransaction).</li>
+                        <li class="mb-2"><strong>Security:</strong> PBKDF2 SHA-256 password hashing with salt, session management, and anti-forgery tokens.</li>
+                        <li class="mb-2"><strong>Document Processing:</strong> Pure .NET text extraction with PdfPig and OpenXml.</li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="border rounded-4 p-4 bg-light">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Two-Student Development Roles</h5>
+                        
+                        <div class="mb-3 p-3 bg-white rounded-3 border">
+                            <span class="badge bg-primary rounded-pill mb-1">Student 1</span>
+                            <h6 class="fw-bold mb-1">Database, ADO.NET Repositories &amp; Authentication</h6>
+                            <p class="text-muted small mb-0">
+                                Responsible for SQL Server 3NF schema, ADO.NET connection factory, repository implementations, PBKDF2 password hasher, and secure file storage.
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-white rounded-3 border">
+                            <span class="badge bg-success rounded-pill mb-1">Student 2</span>
+                            <h6 class="fw-bold mb-1">Razor Views, Analysis Engine &amp; xUnit Testing</h6>
+                            <p class="text-muted small mb-0">
+                                Responsible for the 4-pillar analysis engine, skill dictionary, SaaS Razor Views, user/admin dashboards, printable report, and xUnit test suites.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

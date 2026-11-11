@@ -1,0 +1,205 @@
+@model AIResumeAnalyzer.Models.ResumeAnalysis
+@{
+    ViewData["Title"] = $"Analysis Result - {Model.JobTitle}";
+    string scoreClass = Model.OverallScore >= 75 ? "score-high text-success" : Model.OverallScore >= 50 ? "score-med text-warning" : "score-low text-danger";
+    string badgeClass = Model.OverallScore >= 75 ? "bg-success" : Model.OverallScore >= 50 ? "bg-warning text-dark" : "bg-danger";
+}
+
+<div class="container py-4">
+    <!-- Header Navigation -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3 no-print">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge @badgeClass rounded-pill px-3 py-1">ATS Benchmark Result</span>
+                <small class="text-muted"><i class="bi bi-clock me-1"></i>@Model.CreatedAt.ToString("f")</small>
+            </div>
+            <h2 class="fw-bold mb-0">@Model.JobTitle</h2>
+            <p class="text-muted mb-0">
+                Target Company: <strong>@(Model.CompanyName ?? "General Specification")</strong> · 
+                Resume: <strong>@Model.ResumeFileName</strong>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="PrintReport" asp-route-id="@Model.AnalysisId" target="_blank" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-printer me-1"></i>Print / Export PDF
+            </a>
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-cpu me-1"></i>Analyze Another Job
+            </a>
+        </div>
+    </div>
+
+    <partial name="_NotificationPartial" />
+
+    <!-- Hero Score Summary Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center g-4">
+                <!-- Circular Score Gauge -->
+                <div class="col-12 col-md-4 text-center">
+                    <div class="score-badge-circle @scoreClass mb-3">
+                        <span class="score-number">@Model.OverallScore.ToString("F0")</span>
+                        <span class="small fw-semibold text-muted text-uppercase">Out of 100</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">
+                        @(Model.OverallScore >= 75 ? "High Compatibility" : Model.OverallScore >= 50 ? "Moderate Match" : "Significant Gaps")
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        Matched @Model.MatchedSkillsCount of @Model.TotalSkillsIdentified identified technical requirements.
+                    </p>
+                </div>
+
+                <!-- 4 Evaluation Pillars Progress Bars -->
+                <div class="col-12 col-md-8 border-start-md ps-md-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">4-Pillar Weighted Score Breakdown</h5>
+
+                    <!-- Pillar 1: Skills Match -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-semibold mb-1">
+                            <span><i class="bi bi-code-slash text-primary me-1"></i>Technical Skills Match (40% Weight)</span>
+                            <span class="text-dark">@Model.SkillsScore.ToString("F1")%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 5px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: @Model.SkillsScore%;" aria-valuenow="@Model.SkillsScore" aria-valuemin="0" aria-valuemisi="100"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2: Keyword Overlap -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-semibold mb-1">
+                            <span><i class="bi bi-fonts text-info me-1"></i>Lexical Keyword Overlap (25% Weight)</span>
+                            <span class="text-dark">@Model.KeywordsScore.ToString("F1")%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 5px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: @Model.KeywordsScore%;" aria-valuenow="@Model.KeywordsScore" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3: Experience Alignment -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-semibold mb-1">
+                            <span><i class="bi bi-briefcase text-success me-1"></i>Relevant Experience Alignment (20% Weight)</span>
+                            <span class="text-dark">@Model.ExperienceScore.ToString("F1")%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 5px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @Model.ExperienceScore%;" aria-valuenow="@Model.ExperienceScore" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 4: Education & Qualifications -->
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between small fw-semibold mb-1">
+                            <span><i class="bi bi-mortarboard text-warning me-1"></i>Education &amp; Qualifications (15% Weight)</span>
+                            <span class="text-dark">@Model.EducationScore.ToString("F1")%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 5px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: @Model.EducationScore%;" aria-valuenow="@Model.EducationScore" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Match & Missing Breakdown -->
+    <div class="row g-4 mb-4">
+        <!-- Matched Skills -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0 text-success">
+                        <i class="bi bi-check-circle-fill me-2"></i>Matched Competencies (@Model.Skills.Count(s => s.IsMatched))
+                    </h5>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Found in Resume</span>
+                </div>
+
+                @if (Model.Skills.Any(s => s.IsMatched))
+                {
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var skill in Model.Skills.Where(s => s.IsMatched))
+                        {
+                            <span class="skill-tag skill-tag-matched">
+                                <i class="bi bi-check2"></i>
+                                <strong>@skill.SkillName</strong>
+                                <small class="text-muted ms-1">(@skill.Category)</small>
+                            </span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted small">No direct keyword matches found for the target competencies.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Missing Skills -->
+        <div class="col-12 col-lg-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0 text-danger">
+                        <i class="bi bi-x-circle-fill me-2"></i>Missing Skills / Gaps (@Model.Skills.Count(s => !s.IsMatched))
+                    </h5>
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Required by Job</span>
+                </div>
+
+                @if (Model.Skills.Any(s => !s.IsMatched))
+                {
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var skill in Model.Skills.Where(s => !s.IsMatched))
+                        {
+                            <span class="skill-tag skill-tag-missing">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>@skill.SkillName</strong>
+                                <small class="text-muted ms-1">(@skill.Category)</small>
+                            </span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success border-0 small mb-0">
+                        <i class="bi bi-stars me-1"></i>Impressive! All identified technical skills from the job description are present in your resume.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations for Improvement -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-bold mb-3 border-bottom pb-2">
+            <i class="bi bi-lightbulb-fill text-warning me-2"></i>Actionable Improvement Guidance
+        </h5>
+
+        @if (Model.Recommendations.Count == 0)
+        {
+            <p class="text-muted mb-0">No specific improvements needed. Your resume is well aligned with this job specification.</p>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var rec in Model.Recommendations)
+                {
+                    <div class="list-group-item px-0 py-3 d-flex align-items-start gap-3">
+                        <span class="badge @(rec.Priority == "High" ? "bg-danger" : rec.Priority == "Medium" ? "bg-warning text-dark" : "bg-info") rounded-pill mt-1">
+                            @rec.Priority Priority
+                        </span>
+                        <div>
+                            <div class="fw-bold small text-muted text-uppercase">@rec.Category</div>
+                            <div class="text-dark">@Html.Raw(rec.Suggestion.Replace("**", "<strong>").Replace("<strong>", "<strong>", StringComparison.OrdinalIgnoreCase))</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Calculation Transparency & Methodology Explanation -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+        <h6 class="fw-bold text-dark mb-2">
+            <i class="bi bi-shield-check text-primary me-1"></i>Algorithm Calculation Transparency
+        </h6>
+        <pre class="bg-white p-3 rounded-3 border small text-muted mb-0" style="white-space: pre-wrap; font-family: 'Consolas', monospace;">@Model.CalculationExplanation</pre>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+@model AIResumeAnalyzer.ViewModels.AnalysisHistoryViewModel
+@{
+    ViewData["Title"] = "Analysis History - AI Resume Analyzer";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>Analysis History</h2>
+            <p class="text-muted mb-0">Review all past resume compatibility benchmark evaluations and progress reports</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i>New Analysis
+            </a>
+        </div>
+    </div>
+
+    <partial name="_NotificationPartial" />
+
+    <!-- Metrics Bar -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small">Total Analyses</span>
+                    <span class="fs-4 fw-bold text-dark">@Model.TotalAnalyses</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small">Average Compatibility</span>
+                    <span class="fs-4 fw-bold text-success">@Model.AverageScore.ToString("F1")%</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small">Highest Match Score</span>
+                    <span class="fs-4 fw-bold text-primary">@Model.HighestScore.ToString("F1")%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search / Filter Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+        <form method="get" asp-action="History" class="row g-2 align-items-center">
+            <div class="col-12 col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" value="@Model.SearchQuery" class="form-control border-start-0" placeholder="Filter by job title, company name, or resume file..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-2 d-grid">
+                <button type="submit" class="btn btn-outline-primary rounded-pill">Filter</button>
+            </div>
+            <div class="col-6 col-md-1 d-grid">
+                <a asp-action="History" class="btn btn-light border rounded-pill">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Analyses Table -->
+    @if (Model.Analyses.Count == 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+            <div class="mb-3 text-muted">
+                <i class="bi bi-inbox" style="font-size: 3.5rem;"></i>
+            </div>
+            <h5 class="fw-bold mb-1">No Evaluation Records Found</h5>
+            <p class="text-muted small mb-3">No past analyses match your search criteria or none have been performed yet.</p>
+            <div>
+                <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-cpu me-1"></i>Start an Analysis
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-muted">
+                        <tr>
+                            <th class="ps-4">Target Position</th>
+                            <th>Target Company</th>
+                            <th>Resume Document</th>
+                            <th>Compatibility Score</th>
+                            <th>Date Evaluated</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model.Analyses)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@a.JobTitle</div>
+                                    <small class="text-muted">#@a.AnalysisId</small>
+                                </td>
+                                <td>@(a.CompanyName ?? "General Specification")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-file-earmark-text text-primary me-1"></i>@a.ResumeFileName
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge @(a.OverallScore >= 75 ? "bg-success" : a.OverallScore >= 50 ? "bg-warning text-dark" : "bg-danger") rounded-pill px-3 py-1 fw-bold">
+                                        @a.OverallScore.ToString("F1")%
+                                    </span>
+                                    <small class="text-muted d-block mt-1">@a.MatchedSkillsCount/@a.TotalSkillsIdentified skills</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">@a.CreatedAt.ToString("MMM dd, yyyy · hh:mm tt")</small>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-action="Result" asp-route-id="@a.AnalysisId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </a>
+                                        <a asp-action="PrintReport" asp-route-id="@a.AnalysisId" target="_blank" class="btn btn-sm btn-light border rounded-pill px-2" title="Print Report">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

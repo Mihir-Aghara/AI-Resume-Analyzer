@@ -1,0 +1,187 @@
+@model AIResumeAnalyzer.Models.UserDashboardSummary
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "User Dashboard - AI Resume Analyzer";
+    string userName = HttpContextAccessor.HttpContext?.Session.GetString(SessionKeys.UserName) ?? "Candidate";
+}
+
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-speedometer2 text-primary me-2"></i>Dashboard
+            </h2>
+            <p class="text-muted mb-0">Welcome back, <strong>@userName</strong>! Here is your resume benchmarking overview.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Resume" asp-action="Upload" class="btn btn-outline-primary rounded-pill px-3">
+                <i class="bi bi-cloud-arrow-up me-1"></i>Upload Resume
+            </a>
+            <a asp-controller="Analysis" asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-cpu me-1"></i>New Analysis
+            </a>
+        </div>
+    </div>
+
+    <partial name="_NotificationPartial" />
+
+    <!-- Metric KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Uploaded Resumes</span>
+                    <span class="p-2 rounded-circle bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-file-earmark-person fs-5"></i>
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-0">@Model.TotalResumes</h3>
+                <small class="text-muted mt-1 d-block"><a asp-controller="Resume" asp-action="MyResumes" class="text-decoration-none">View all resumes &rarr;</a></small>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Analyses Run</span>
+                    <span class="p-2 rounded-circle bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-cpu fs-5"></i>
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-0">@Model.TotalAnalyses</h3>
+                <small class="text-muted mt-1 d-block"><a asp-controller="Analysis" asp-action="History" class="text-decoration-none">View history &rarr;</a></small>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Average Match</span>
+                    <span class="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-graph-up fs-5"></i>
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-0 text-success">@Model.AverageScore.ToString("F1")%</h3>
+                <small class="text-muted mt-1 d-block">Across all job postings</small>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Peak Match</span>
+                    <span class="p-2 rounded-circle bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-trophy fs-5"></i>
+                    </span>
+                </div>
+                <h3 class="fw-bold mb-0 text-warning">@Model.HighestScore.ToString("F1")%</h3>
+                <small class="text-muted mt-1 d-block">Best compatibility score</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Analyses Table -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Recent Analyses</h5>
+                    <a asp-controller="Analysis" asp-action="History" class="text-decoration-none small fw-semibold">View All</a>
+                </div>
+
+                @if (Model.RecentAnalyses.Count == 0)
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-clipboard2-pulse fs-1 text-muted mb-2 d-block"></i>
+                        <p class="mb-2">No analyses performed yet.</p>
+                        <a asp-controller="Analysis" asp-action="Create" class="btn btn-sm btn-outline-primary rounded-pill">Analyze Your Resume Now</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-muted">
+                                <tr>
+                                    <th>Target Position</th>
+                                    <th>Resume File</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.RecentAnalyses)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@item.JobTitle</div>
+                                            <small class="text-muted">@(item.CompanyName ?? "Unspecified Company")</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-truncate d-inline-block" style="max-width: 140px;">
+                                                <i class="bi bi-file-earmark-text text-secondary me-1"></i>@item.ResumeFileName
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(item.OverallScore >= 75 ? "bg-success" : item.OverallScore >= 50 ? "bg-warning text-dark" : "bg-danger") rounded-pill px-2 py-1">
+                                                @item.OverallScore.ToString("F1")%
+                                            </span>
+                                        </td>
+                                        <td><small class="text-muted">@item.CreatedAt.ToString("MMM dd")</small></td>
+                                        <td class="text-end">
+                                            <a asp-controller="Analysis" asp-action="Result" asp-route-id="@item.AnalysisId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                Inspect
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Stored Resumes Sidebar -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-folder2 text-primary me-2"></i>My Documents</h5>
+                    <a asp-controller="Resume" asp-action="MyResumes" class="text-decoration-none small fw-semibold">Manage</a>
+                </div>
+
+                @if (Model.RecentResumes.Count == 0)
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-cloud-arrow-up fs-1 text-muted mb-2 d-block"></i>
+                        <p class="mb-2">No documents stored.</p>
+                        <a asp-controller="Resume" asp-action="Upload" class="btn btn-sm btn-primary rounded-pill">Upload PDF / DOCX</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var res in Model.RecentResumes)
+                        {
+                            <div class="list-group-item px-0 py-3 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                                    <span class="badge @(res.FileType == ".pdf" ? "bg-danger" : "bg-primary") rounded-pill">
+                                        @res.FileType.TrimStart('.').ToUpperInvariant()
+                                    </span>
+                                    <span class="small fw-semibold text-truncate" title="@res.OriginalFileName">
+                                        @res.OriginalFileName
+                                    </span>
+                                </div>
+                                <a asp-controller="Analysis" asp-action="Create" asp-route-resumeId="@res.ResumeId" class="btn btn-sm btn-light border rounded-pill">
+                                    <i class="bi bi-cpu"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
