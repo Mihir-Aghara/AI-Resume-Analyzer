@@ -1,0 +1,89 @@
+@model AIResumeAnalyzer.ViewModels.ResumeDetailsViewModel
+@{
+    ViewData["Title"] = "Resume Content Details - AI Resume Analyzer";
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-text text-primary me-2"></i>Extracted Resume Content</h2>
+            <p class="text-muted mb-0">Inspecting parsed text from: <strong>@Model.Resume.OriginalFileName</strong></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="MyResumes" class="btn btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i>Back to Resumes
+            </a>
+            <a asp-controller="Analysis" asp-action="Create" asp-route-resumeId="@Model.Resume.ResumeId" class="btn btn-primary rounded-pill shadow-sm">
+                <i class="bi bi-cpu me-1"></i>Analyze This Resume
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Metadata Sidebar -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">Document Metadata</h5>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Original File Name</span>
+                    <span class="fw-semibold text-dark">@Model.Resume.OriginalFileName</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block">File Format</span>
+                    <span class="badge @(Model.Resume.FileType == ".pdf" ? "bg-danger" : "bg-primary") rounded-pill">
+                        @Model.Resume.FileType.ToUpperInvariant()
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Document File Size</span>
+                    <span class="fw-semibold text-dark">@((Model.Resume.FileSizeBytes / 1024.0).ToString("F2")) KB (@Model.Resume.FileSizeBytes bytes)</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Upload Date &amp; Time</span>
+                    <span class="fw-semibold text-dark">@Model.Resume.UploadedAt.ToString("f")</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block">Physical Storage Path (Non-Public)</span>
+                    <code class="small text-break">@Model.Resume.FilePath</code>
+                </div>
+
+                <div class="mb-0">
+                    <span class="text-muted small d-block">Extracted Text Character Count</span>
+                    <span class="fw-semibold text-success">@Model.Resume.ExtractedText.Length characters</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw Text Preview Card -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-terminal text-primary me-2"></i>Extracted Text Feed
+                    </h5>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="copyExtractedText()">
+                        <i class="bi bi-clipboard me-1"></i>Copy Text
+                    </button>
+                </div>
+
+                <pre class="bg-light p-4 rounded-3 border text-dark" id="extractedContent" style="white-space: pre-wrap; word-break: break-word; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9rem; max-height: 600px; overflow-y: auto;">@Model.Resume.ExtractedText</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyExtractedText() {
+            const text = document.getElementById('extractedContent').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Extracted text copied to clipboard!');
+            });
+        }
+    </script>
+}

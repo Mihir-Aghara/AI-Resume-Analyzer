@@ -1,0 +1,100 @@
+@model AIResumeAnalyzer.ViewModels.ResumeListViewModel
+@{
+    ViewData["Title"] = "My Uploaded Resumes - AI Resume Analyzer";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-person text-primary me-2"></i>My Uploaded Resumes</h2>
+            <p class="text-muted mb-0">Manage your stored resumes and trigger compatibility evaluations against job postings</p>
+        </div>
+        <a asp-action="Upload" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-cloud-arrow-up me-1"></i>Upload New Resume
+        </a>
+    </div>
+
+    <partial name="_NotificationPartial" />
+
+    @if (Model.Resumes.Count == 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4">
+            <div class="mb-3 text-muted">
+                <i class="bi bi-file-earmark-x" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">No Resumes Found</h4>
+            <p class="text-muted mb-4">You have not uploaded any resumes yet. Upload your PDF or DOCX resume to start analyzing matches.</p>
+            <div>
+                <a asp-action="Upload" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-cloud-arrow-up me-2"></i>Upload Your First Resume
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var resume in Model.Resumes)
+            {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 card-hover d-flex flex-column">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex align-items-start justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="p-2 rounded-3 @(resume.FileType == ".pdf" ? "bg-danger bg-opacity-10 text-danger" : "bg-primary bg-opacity-10 text-primary")">
+                                        <i class="bi @(resume.FileType == ".pdf" ? "bi-file-earmark-pdf-fill" : "bi-file-earmark-word-fill") fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <span class="badge @(resume.FileType == ".pdf" ? "bg-danger" : "bg-primary") rounded-pill">
+                                            @resume.FileType.ToUpperInvariant().TrimStart('.')
+                                        </span>
+                                        <small class="text-muted d-block mt-1">@((resume.FileSizeBytes / 1024.0).ToString("F1")) KB</small>
+                                    </div>
+                                </div>
+
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li>
+                                            <a class="dropdown-item" asp-action="Details" asp-route-id="@resume.ResumeId">
+                                                <i class="bi bi-eye me-2 text-primary"></i>Inspect Extracted Text
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form asp-action="Delete" asp-route-id="@resume.ResumeId" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this resume?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="bi bi-trash me-2"></i>Delete Resume
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold mb-2 text-truncate" title="@resume.OriginalFileName">
+                                @resume.OriginalFileName
+                            </h5>
+
+                            <p class="text-muted small mb-4 flex-grow-1">
+                                <i class="bi bi-calendar3 me-1"></i>Uploaded on @resume.UploadedAt.ToString("MMM dd, yyyy · hh:mm tt")
+                            </p>
+
+                            <div class="d-grid gap-2 mt-auto">
+                                <a asp-controller="Analysis" asp-action="Create" asp-route-resumeId="@resume.ResumeId" class="btn btn-primary rounded-pill">
+                                    <i class="bi bi-cpu me-1"></i>Analyze Match
+                                </a>
+                                <a asp-action="Details" asp-route-id="@resume.ResumeId" class="btn btn-outline-secondary btn-sm rounded-pill">
+                                    <i class="bi bi-file-text me-1"></i>View Extracted Content
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

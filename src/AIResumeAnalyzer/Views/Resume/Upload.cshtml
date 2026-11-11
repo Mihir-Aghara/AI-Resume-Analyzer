@@ -1,0 +1,149 @@
+@model AIResumeAnalyzer.ViewModels.ResumeUploadViewModel
+@{
+    ViewData["Title"] = "Upload Resume - AI Resume Analyzer";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1"><i class="bi bi-cloud-arrow-up text-primary me-2"></i>Upload Your Resume</h2>
+                    <p class="text-muted mb-0">Upload your PDF or Word document. We will securely parse and extract its technical text.</p>
+                </div>
+                <a asp-action="MyResumes" class="btn btn-outline-secondary rounded-pill">
+                    <i class="bi bi-folder2-open me-1"></i>My Resumes
+                </a>
+            </div>
+
+            <partial name="_NotificationPartial" />
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+
+                        <!-- Drag and Drop Zone -->
+                        <div class="dropzone mb-4" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                            <input type="file" asp-for="ResumeFile" id="fileInput" class="d-none" accept=".pdf,.docx" onchange="handleFileSelect(this)" />
+                            
+                            <div id="dropZonePrompt">
+                                <div class="mb-3">
+                                    <i class="bi bi-file-earmark-arrow-up text-primary" style="font-size: 3.5rem;"></i>
+                                </div>
+                                <h5 class="fw-bold mb-1">Drag &amp; Drop your resume here</h5>
+                                <p class="text-muted small mb-3">Supports PDF (.pdf) and Microsoft Word (.docx) up to 5 MB</p>
+                                <button type="button" class="btn btn-primary rounded-pill px-4">
+                                    <i class="bi bi-folder me-1"></i>Browse Computer
+                                </button>
+                            </div>
+
+                            <div id="fileSelectedDisplay" class="d-none text-start bg-white p-3 rounded-3 border">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="bi bi-file-earmark-check fs-2 text-success" id="fileIcon"></i>
+                                        <div>
+                                            <div class="fw-bold text-dark" id="fileName">Resume.pdf</div>
+                                            <small class="text-muted" id="fileSize">1.2 MB</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" onclick="clearFileSelection(event)">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <span asp-validation-for="ResumeFile" class="text-danger small d-block mb-3"></span>
+
+                        <div class="bg-light p-3 rounded-3 border mb-4 small text-muted">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-shield-check text-success me-1"></i>Security &amp; Privacy Verification:</h6>
+                            <ul class="mb-0 ps-3">
+                                <li>Files are validated using binary magic signatures (preventing renamed executables).</li>
+                                <li>Original files are stored securely outside public web roots (preventing direct HTTP URL access).</li>
+                                <li>Files are assigned non-predictable GUID names to prevent directory traversal and collision attacks.</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm" id="submitBtn">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" id="submitSpinner" role="status"></span>
+                                <i class="bi bi-arrow-right-circle me-1" id="submitIcon"></i>Upload &amp; Extract Text
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const promptDiv = document.getElementById('dropZonePrompt');
+        const displayDiv = document.getElementById('fileSelectedDisplay');
+        const fileNameSpan = document.getElementById('fileName');
+        const fileSizeSpan = document.getElementById('fileSize');
+        const form = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const submitIcon = document.getElementById('submitIcon');
+
+        // Drag and drop events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(fileInput);
+            }
+        });
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                fileNameSpan.textContent = file.name;
+                fileSizeSpan.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+
+                promptDiv.classList.add('d-none');
+                displayDiv.classList.remove('d-none');
+            }
+        }
+
+        function clearFileSelection(e) {
+            e.stopPropagation();
+            fileInput.value = '';
+            promptDiv.classList.remove('d-none');
+            displayDiv.classList.add('d-none');
+        }
+
+        form.addEventListener('submit', function () {
+            if (fileInput.files.length > 0) {
+                submitBtn.disabled = true;
+                submitSpinner.classList.remove('d-none');
+                submitIcon.classList.add('d-none');
+                submitBtn.innerText = ' Extracting Text...';
+                submitBtn.prepend(submitSpinner);
+            }
+        });
+    </script>
+}
