@@ -1,0 +1,93 @@
+@model AIResumeAnalyzer.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In - AI Resume Analyzer";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-12 col-md-8 col-lg-5">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-gradient bg-primary text-white text-center py-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-white bg-opacity-25 mb-2">
+                    <i class="bi bi-shield-lock fs-2 text-white"></i>
+                </div>
+                <h3 class="fw-bold mb-1">Welcome Back</h3>
+                <p class="text-white-50 mb-0 small">Sign in to analyze your resumes and track compatibility</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <partial name="_NotificationPartial" />
+
+                <form asp-action="Login" method="post" id="loginForm" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                            <input asp-for="Email" class="form-control border-start-0" id="loginEmail" placeholder="name@college.edu" autocomplete="email" required />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <label asp-for="Password" class="form-label fw-semibold small text-muted"></label>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                            <input asp-for="Password" class="form-control border-start-0" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </div>
+
+                    <!-- Quick Fill for Academic Faculty Demo -->
+                    <div class="bg-light p-3 rounded-3 border mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="badge bg-secondary">Faculty Evaluation Demo Fill</span>
+                            <small class="text-muted">Click to auto-populate</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="fillCredentials('student@college.edu', 'Student@123')">
+                                <i class="bi bi-person me-1"></i>Student Demo
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger flex-fill" onclick="fillCredentials('admin@airesume.local', 'Admin@123')">
+                                <i class="bi bi-shield-check me-1"></i>Admin Demo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-muted small mb-0">
+                            Don't have an account? 
+                            <a asp-action="Register" class="text-primary fw-bold text-decoration-none">Create an account</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function fillCredentials(email, pwd) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = pwd;
+        }
+    </script>
+}

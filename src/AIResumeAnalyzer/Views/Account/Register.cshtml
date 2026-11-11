@@ -1,0 +1,90 @@
+@model AIResumeAnalyzer.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account - AI Resume Analyzer";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-12 col-md-9 col-lg-6">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-gradient bg-success text-white text-center py-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-white bg-opacity-25 mb-2">
+                    <i class="bi bi-person-plus fs-2 text-white"></i>
+                </div>
+                <h3 class="fw-bold mb-1">Create an Account</h3>
+                <p class="text-white-50 mb-0 small">Get started with AI-driven ATS resume analysis and job matching</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <partial name="_NotificationPartial" />
+
+                <form asp-action="Register" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold small text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            <input asp-for="FullName" class="form-control border-start-0" placeholder="e.g. John Doe" autocomplete="name" required />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                            <input asp-for="Email" class="form-control border-start-0" placeholder="name@college.edu" autocomplete="email" required />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-semibold small text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                                <input asp-for="Password" class="form-control border-start-0" placeholder="••••••••" autocomplete="new-password" required />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold small text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-check2-circle text-muted"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control border-start-0" placeholder="••••••••" autocomplete="new-password" required />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="AcceptTerms" class="form-check-input" id="termsCheck" />
+                        <label asp-for="AcceptTerms" class="form-check-label small text-muted">
+                            I understand that analysis scores are algorithmic benchmarks and do not guarantee interview shortlisting.
+                        </label>
+                        <div><span asp-validation-for="AcceptTerms" class="text-danger small"></span></div>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-arrow-right-circle me-2"></i>Create Free Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-muted small mb-0">
+                            Already registered? 
+                            <a asp-action="Login" class="text-success fw-bold text-decoration-none">Sign in here</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

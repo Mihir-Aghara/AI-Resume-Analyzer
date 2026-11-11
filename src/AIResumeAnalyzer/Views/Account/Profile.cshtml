@@ -1,0 +1,113 @@
+@model AIResumeAnalyzer.ViewModels.UserProfileViewModel
+@{
+    ViewData["Title"] = "My Profile - AI Resume Analyzer";
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-1"><i class="bi bi-person-gear text-primary me-2"></i>Account & Profile Settings</h2>
+            <p class="text-muted">Manage your personal information, role details, and security settings</p>
+        </div>
+    </div>
+
+    <partial name="_NotificationPartial" />
+
+    <div class="row g-4">
+        <!-- Profile Overview Card -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4">
+                <div class="mx-auto mb-3 p-3 rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex" style="width: 80px; height: 80px; align-items: center; justify-content: center;">
+                    <i class="bi bi-person-circle fs-1"></i>
+                </div>
+                <h4 class="fw-bold mb-1">@Model.FullName</h4>
+                <p class="text-muted small mb-3">@Model.Email</p>
+
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <span class="badge @(Model.Role == "Admin" ? "bg-danger" : "bg-primary") px-3 py-2 rounded-pill">
+                        <i class="bi @(Model.Role == "Admin" ? "bi-shield-check" : "bi-person") me-1"></i>@Model.Role Account
+                    </span>
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                        <i class="bi bi-check-circle me-1"></i>Active
+                    </span>
+                </div>
+
+                <div class="border-top pt-3 text-start small text-muted">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Account ID:</span>
+                        <span class="fw-semibold text-dark">#@Model.UserId</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Member Since:</span>
+                        <span class="fw-semibold text-dark">@Model.MemberSince.ToString("MMM dd, yyyy")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editable Forms -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">
+                    <i class="bi bi-person-vcard text-primary me-2"></i>Personal Details
+                </h5>
+                <form asp-action="UpdateProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="FullName" class="form-control" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="Email" class="form-control" required />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-save me-1"></i>Save Profile
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">
+                    <i class="bi bi-shield-lock text-danger me-2"></i>Change Password
+                </h5>
+                <form asp-action="ChangePassword" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="CurrentPassword" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="CurrentPassword" class="form-control" type="password" required />
+                            <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPassword" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="NewPassword" class="form-control" type="password" required />
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmNewPassword" class="form-label small fw-semibold text-muted"></label>
+                            <input asp-for="ConfirmNewPassword" class="form-control" type="password" required />
+                            <span asp-validation-for="ConfirmNewPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-outline-danger rounded-pill px-4">
+                                <i class="bi bi-key me-1"></i>Update Password
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
