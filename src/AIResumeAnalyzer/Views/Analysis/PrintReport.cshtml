@@ -135,6 +135,7 @@
             font-weight: 600;
         }
 
+        .priority-strength { background-color: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 10px; }
         .priority-high { background-color: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 10px; }
         .priority-med { background-color: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 10px; }
         .priority-low { background-color: #e0f2fe; color: #075985; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 10px; }
@@ -178,7 +179,7 @@
 <body>
     <div class="no-print-bar">
         <div>
-            <strong>AI Resume Analyzer</strong> · Official Academic Evaluation Report
+            <strong>AI Resume Analyzer</strong> · Personalized Career Compatibility Report
         </div>
         <div>
             <button class="btn-print" onclick="window.print()"><i class="bi bi-printer"></i> Print / Save as PDF</button>
@@ -188,10 +189,10 @@
     <div class="report-header">
         <div>
             <div class="brand-title">AI Resume<span>Analyzer</span></div>
-            <div style="font-size: 12px; color: #64748b;">Explainable ATS Resume Benchmarking Engine · Academic Capstone Submission</div>
+            <div style="font-size: 12px; color: #64748b;">Smart Resume Review &amp; Career Match Intelligence</div>
         </div>
         <div>
-            <span class="report-tag">Evaluation Report #@Model.AnalysisId</span>
+            <span class="report-tag">Review Report #@Model.AnalysisId</span>
         </div>
     </div>
 
@@ -321,12 +322,12 @@
             {
                 <tr>
                     <td>
-                        <span class="@(rec.Priority == "High" ? "priority-high" : rec.Priority == "Medium" ? "priority-med" : "priority-low")">
+                        <span class="@(rec.Priority == "Strength" ? "priority-strength" : rec.Priority == "High" ? "priority-high" : rec.Priority == "Medium" ? "priority-med" : "priority-low")">
                             @rec.Priority
                         </span>
                     </td>
                     <td><strong>@rec.Category</strong></td>
-                    <td>@rec.Suggestion.Replace("**", "")</td>
+                    <td>@rec.Suggestion.Replace("**", "").Replace("*", "")</td>
                 </tr>
             }
         </tbody>
@@ -334,8 +335,8 @@
 
     <!-- Methodology Disclaimer -->
     <div class="disclaimer-box">
-        <strong>Academic Evaluation Methodology:</strong>
-        This report was generated using the explainable 4-pillar keyword and taxonomy algorithm developed as part of a B.Tech Computer Engineering capstone project in ASP.NET Core MVC &amp; ADO.NET. Scores represent algorithmic heuristic benchmarks designed to assist students in discovering technical curriculum gaps, and do not represent proprietary third-party ATS vendor algorithms.
+        <strong>About This Score:</strong>
+        This report evaluates your resume transparently across Core &amp; Transferable Skills (40%), Role Language &amp; Keywords (25%), Experience &amp; Impact (20%), and Education &amp; Readiness (15%). It is designed as an actionable career-coaching guide and does not represent an official third-party employer ATS algorithm.
     </div>
 </body>
 </html>

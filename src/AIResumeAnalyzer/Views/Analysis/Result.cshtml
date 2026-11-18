@@ -1,8 +1,24 @@
+@using System.Net
+@using System.Text.RegularExpressions
 @model AIResumeAnalyzer.Models.ResumeAnalysis
 @{
-    ViewData["Title"] = $"Analysis Result - {Model.JobTitle}";
-    string scoreClass = Model.OverallScore >= 75 ? "score-high text-success" : Model.OverallScore >= 50 ? "score-med text-warning" : "score-low text-danger";
-    string badgeClass = Model.OverallScore >= 75 ? "bg-success" : Model.OverallScore >= 50 ? "bg-warning text-dark" : "bg-danger";
+    ViewData["Title"] = $"Resume Review - {Model.JobTitle}";
+    string scoreClass = Model.OverallScore >= 75 ? "score-high text-success" : Model.OverallScore >= 55 ? "score-med text-warning" : "score-low text-danger";
+    string badgeClass = Model.OverallScore >= 75 ? "bg-success" : Model.OverallScore >= 55 ? "bg-warning text-dark" : "bg-danger";
+    string verdictTitle = Model.OverallScore >= 75
+        ? "Strong Match — Ready to Apply!"
+        : Model.OverallScore >= 55
+            ? "Good Match — A Few Smart Tweaks Away"
+            : "Promising Start — Focus on Key Gaps";
+
+    string FormatCoachingText(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return string.Empty;
+        string encoded = WebUtility.HtmlEncode(raw);
+        encoded = Regex.Replace(encoded, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
+        encoded = Regex.Replace(encoded, @"\*(.+?)\*", "<em>$1</em>");
+        return encoded;
+    }
 }
 
 <div class="container py-4">
@@ -10,12 +26,12 @@
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3 no-print">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge @badgeClass rounded-pill px-3 py-1">ATS Benchmark Result</span>
+                <span class="badge @badgeClass rounded-pill px-3 py-1">Resume Review Report</span>
                 <small class="text-muted"><i class="bi bi-clock me-1"></i>@Model.CreatedAt.ToString("f")</small>
             </div>
             <h2 class="fw-bold mb-0">@Model.JobTitle</h2>
             <p class="text-muted mb-0">
-                Target Company: <strong>@(Model.CompanyName ?? "General Specification")</strong> · 
+                Target Company: <strong>@(Model.CompanyName ?? "Target Role")</strong> ·
                 Resume: <strong>@Model.ResumeFileName</strong>
             </p>
         </div>
@@ -24,7 +40,7 @@
                 <i class="bi bi-printer me-1"></i>Print / Export PDF
             </a>
             <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="bi bi-cpu me-1"></i>Analyze Another Job
+                <i class="bi bi-magic me-1"></i>Analyze Another Job
             </a>
         </div>
     </div>
@@ -41,33 +57,31 @@
                         <span class="score-number">@Model.OverallScore.ToString("F0")</span>
                         <span class="small fw-semibold text-muted text-uppercase">Out of 100</span>
                     </div>
-                    <h5 class="fw-bold mb-1">
-                        @(Model.OverallScore >= 75 ? "High Compatibility" : Model.OverallScore >= 50 ? "Moderate Match" : "Significant Gaps")
-                    </h5>
+                    <h5 class="fw-bold mb-1">@verdictTitle</h5>
                     <p class="text-muted small mb-0">
-                        Matched @Model.MatchedSkillsCount of @Model.TotalSkillsIdentified identified technical requirements.
+                        Matched @Model.MatchedSkillsCount of @Model.TotalSkillsIdentified identified role skills.
                     </p>
                 </div>
 
                 <!-- 4 Evaluation Pillars Progress Bars -->
                 <div class="col-12 col-md-8 border-start-md ps-md-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">4-Pillar Weighted Score Breakdown</h5>
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Compatibility Breakdown</h5>
 
                     <!-- Pillar 1: Skills Match -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between small fw-semibold mb-1">
-                            <span><i class="bi bi-code-slash text-primary me-1"></i>Technical Skills Match (40% Weight)</span>
+                            <span><i class="bi bi-code-slash text-primary me-1"></i>Core &amp; Transferable Skills (40% Weight)</span>
                             <span class="text-dark">@Model.SkillsScore.ToString("F1")%</span>
                         </div>
                         <div class="progress" style="height: 10px; border-radius: 5px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: @Model.SkillsScore%;" aria-valuenow="@Model.SkillsScore" aria-valuemin="0" aria-valuemisi="100"></div>
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: @Model.SkillsScore%;" aria-valuenow="@Model.SkillsScore" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
 
                     <!-- Pillar 2: Keyword Overlap -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between small fw-semibold mb-1">
-                            <span><i class="bi bi-fonts text-info me-1"></i>Lexical Keyword Overlap (25% Weight)</span>
+                            <span><i class="bi bi-fonts text-info me-1"></i>Role Language &amp; Keywords (25% Weight)</span>
                             <span class="text-dark">@Model.KeywordsScore.ToString("F1")%</span>
                         </div>
                         <div class="progress" style="height: 10px; border-radius: 5px;">
@@ -78,7 +92,7 @@
                     <!-- Pillar 3: Experience Alignment -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between small fw-semibold mb-1">
-                            <span><i class="bi bi-briefcase text-success me-1"></i>Relevant Experience Alignment (20% Weight)</span>
+                            <span><i class="bi bi-briefcase text-success me-1"></i>Experience &amp; Impact (20% Weight)</span>
                             <span class="text-dark">@Model.ExperienceScore.ToString("F1")%</span>
                         </div>
                         <div class="progress" style="height: 10px; border-radius: 5px;">
@@ -89,7 +103,7 @@
                     <!-- Pillar 4: Education & Qualifications -->
                     <div class="mb-0">
                         <div class="d-flex justify-content-between small fw-semibold mb-1">
-                            <span><i class="bi bi-mortarboard text-warning me-1"></i>Education &amp; Qualifications (15% Weight)</span>
+                            <span><i class="bi bi-mortarboard text-warning me-1"></i>Education &amp; Readiness (15% Weight)</span>
                             <span class="text-dark">@Model.EducationScore.ToString("F1")%</span>
                         </div>
                         <div class="progress" style="height: 10px; border-radius: 5px;">
@@ -108,7 +122,7 @@
             <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
                 <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
                     <h5 class="fw-bold mb-0 text-success">
-                        <i class="bi bi-check-circle-fill me-2"></i>Matched Competencies (@Model.Skills.Count(s => s.IsMatched))
+                        <i class="bi bi-check-circle-fill me-2"></i>Matched Strengths (@Model.Skills.Count(s => s.IsMatched))
                     </h5>
                     <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Found in Resume</span>
                 </div>
@@ -128,19 +142,19 @@
                 }
                 else
                 {
-                    <p class="text-muted small">No direct keyword matches found for the target competencies.</p>
+                    <p class="text-muted small mb-0">No direct technical skill overlaps were detected yet — check the coaching recommendations below to showcase your relevant skills clearly.</p>
                 }
             </div>
         </div>
 
-        <!-- Missing Skills -->
+        <!-- Missing Skills / Growth Opportunities -->
         <div class="col-12 col-lg-6">
             <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
                 <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
                     <h5 class="fw-bold mb-0 text-danger">
-                        <i class="bi bi-x-circle-fill me-2"></i>Missing Skills / Gaps (@Model.Skills.Count(s => !s.IsMatched))
+                        <i class="bi bi-plus-circle-fill me-2"></i>Skills to Highlight or Build (@Model.Skills.Count(s => !s.IsMatched))
                     </h5>
-                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Required by Job</span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Mentioned in Job</span>
                 </div>
 
                 @if (Model.Skills.Any(s => !s.IsMatched))
@@ -148,10 +162,18 @@
                     <div class="d-flex flex-wrap gap-1">
                         @foreach (var skill in Model.Skills.Where(s => !s.IsMatched))
                         {
-                            <span class="skill-tag skill-tag-missing">
-                                <i class="bi bi-exclamation-triangle"></i>
+                            bool hasRelated = !string.IsNullOrWhiteSpace(skill.ProficiencyLevel) && skill.ProficiencyLevel.StartsWith("Related:", StringComparison.OrdinalIgnoreCase);
+                            <span class="skill-tag @(hasRelated ? "bg-warning bg-opacity-25 text-dark border border-warning" : "skill-tag-missing")">
+                                <i class="bi @(hasRelated ? "bi-arrow-left-right text-warning" : "bi-exclamation-triangle")"></i>
                                 <strong>@skill.SkillName</strong>
-                                <small class="text-muted ms-1">(@skill.Category)</small>
+                                @if (hasRelated)
+                                {
+                                    <small class="text-muted ms-1">(@skill.ProficiencyLevel)</small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted ms-1">(@skill.Category)</small>
+                                }
                             </span>
                         }
                     </div>
@@ -159,35 +181,65 @@
                 else
                 {
                     <div class="alert alert-success border-0 small mb-0">
-                        <i class="bi bi-stars me-1"></i>Impressive! All identified technical skills from the job description are present in your resume.
+                        <i class="bi bi-stars me-1"></i>Awesome! Every identified skill from this job description is already represented in your resume.
                     </div>
                 }
             </div>
         </div>
     </div>
 
-    <!-- Recommendations for Improvement -->
+    <!-- Personalized Career Coaching & Recommendations -->
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-        <h5 class="fw-bold mb-3 border-bottom pb-2">
-            <i class="bi bi-lightbulb-fill text-warning me-2"></i>Actionable Improvement Guidance
-        </h5>
+        <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between mb-3 border-bottom pb-2 gap-2">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-lightbulb-fill text-warning me-2"></i>Personalized Resume Review &amp; Suggestions
+            </h5>
+            <span class="text-muted small">Tailored coaching based on your resume and target job</span>
+        </div>
 
         @if (Model.Recommendations.Count == 0)
         {
-            <p class="text-muted mb-0">No specific improvements needed. Your resume is well aligned with this job specification.</p>
+            <p class="text-muted mb-0">Your resume looks well aligned with this job posting. You're in great shape to apply!</p>
         }
         else
         {
-            <div class="list-group list-group-flush">
+            <div class="d-flex flex-column gap-3">
                 @foreach (var rec in Model.Recommendations)
                 {
-                    <div class="list-group-item px-0 py-3 d-flex align-items-start gap-3">
-                        <span class="badge @(rec.Priority == "High" ? "bg-danger" : rec.Priority == "Medium" ? "bg-warning text-dark" : "bg-info") rounded-pill mt-1">
-                            @rec.Priority Priority
-                        </span>
-                        <div>
-                            <div class="fw-bold small text-muted text-uppercase">@rec.Category</div>
-                            <div class="text-dark">@Html.Raw(rec.Suggestion.Replace("**", "<strong>").Replace("<strong>", "<strong>", StringComparison.OrdinalIgnoreCase))</div>
+                    string cardModifier = rec.Priority switch
+                    {
+                        "Strength" => "rec-item-strength",
+                        "High" => "rec-item-high",
+                        "Medium" => "rec-item-medium",
+                        _ => "rec-item-low"
+                    };
+
+                    string pillStyle = rec.Priority switch
+                    {
+                        "Strength" => "bg-success text-white",
+                        "High" => "bg-danger text-white",
+                        "Medium" => "bg-warning text-dark",
+                        _ => "bg-info text-dark"
+                    };
+
+                    string pillLabel = rec.Priority == "Strength" ? "Strength" : $"{rec.Priority} Impact";
+                    string iconClass = rec.Priority switch
+                    {
+                        "Strength" => "bi-stars",
+                        "High" => "bi-lightning-charge-fill",
+                        "Medium" => "bi-pencil-square",
+                        _ => "bi-check2-circle"
+                    };
+
+                    <div class="rec-item-card @cardModifier">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <span class="badge @pillStyle rounded-pill px-3 py-1">
+                                <i class="bi @iconClass me-1"></i>@pillLabel
+                            </span>
+                            <span class="fw-bold small text-muted text-uppercase">@rec.Category</span>
+                        </div>
+                        <div class="text-dark mt-1" style="font-size: 0.95rem; line-height: 1.6;">
+                            @Html.Raw(FormatCoachingText(rec.Suggestion))
                         </div>
                     </div>
                 }
@@ -198,7 +250,7 @@
     <!-- Calculation Transparency & Methodology Explanation -->
     <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
         <h6 class="fw-bold text-dark mb-2">
-            <i class="bi bi-shield-check text-primary me-1"></i>Algorithm Calculation Transparency
+            <i class="bi bi-shield-check text-primary me-1"></i>How Your Score Was Calculated
         </h6>
         <pre class="bg-white p-3 rounded-3 border small text-muted mb-0" style="white-space: pre-wrap; font-family: 'Consolas', monospace;">@Model.CalculationExplanation</pre>
     </div>

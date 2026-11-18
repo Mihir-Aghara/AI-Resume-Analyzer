@@ -354,7 +354,7 @@ namespace AIResumeAnalyzer.Repositories
                 SELECT RecommendationId, AnalysisId, Category, Suggestion, Priority
                 FROM Recommendations
                 WHERE AnalysisId = @AnalysisId
-                ORDER BY CASE Priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END;";
+                ORDER BY CASE Priority WHEN 'Strength' THEN 1 WHEN 'High' THEN 2 WHEN 'Medium' THEN 3 WHEN 'Low' THEN 4 ELSE 5 END, RecommendationId ASC;";
 
             await using (var cmd = new SqlCommand(recSql, conn))
             {

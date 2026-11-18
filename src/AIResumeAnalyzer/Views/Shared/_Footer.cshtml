@@ -8,46 +8,47 @@
                     </span>
                     <span class="fw-bold text-white fs-5">AI Resume<span class="text-primary">Analyzer</span></span>
                 </div>
-                <p class="small text-white-50">
-                    A comprehensive, explainable ATS resume benchmarking platform developed for academic capstone evaluation in B.Tech Computer Engineering (Semester 5).
+                <p class="small text-white-50 mb-3">
+                    Helping students, career switchers, and professionals turn resumes into interview calls with honest scoring, skill gap clarity, and practical career coaching.
                 </p>
-                <div class="small text-muted">
-                    Built with <strong>ASP.NET Core MVC</strong>, <strong>ADO.NET</strong>, and <strong>Microsoft SQL Server</strong>.
+                <div class="d-flex align-items-center gap-2 small text-white-50">
+                    <i class="bi bi-shield-check text-success"></i>
+                    <span>Private, encrypted resume handling</span>
                 </div>
             </div>
 
             <div class="col-6 col-md-2">
                 <h6 class="text-white fw-bold mb-3">Platform</h6>
                 <ul class="list-unstyled small mb-0">
-                    <li class="mb-2"><a asp-controller="Home" asp-action="Index" class="text-white-50 text-decoration-none">Home</a></li>
-                    <li class="mb-2"><a asp-controller="Resume" asp-action="Upload" class="text-white-50 text-decoration-none">Upload Resume</a></li>
-                    <li class="mb-2"><a asp-controller="Analysis" asp-action="Create" class="text-white-50 text-decoration-none">Analyze ATS Match</a></li>
-                    <li class="mb-2"><a asp-controller="Analysis" asp-action="History" class="text-white-50 text-decoration-none">Past Analyses</a></li>
+                    <li class="mb-2"><a asp-controller="Home" asp-action="Index" class="text-white-50 text-decoration-none hover-text-white">Home</a></li>
+                    <li class="mb-2"><a asp-controller="Resume" asp-action="Upload" class="text-white-50 text-decoration-none hover-text-white">Upload Resume</a></li>
+                    <li class="mb-2"><a asp-controller="Analysis" asp-action="Create" class="text-white-50 text-decoration-none hover-text-white">Analyze Match</a></li>
+                    <li class="mb-2"><a asp-controller="Analysis" asp-action="History" class="text-white-50 text-decoration-none hover-text-white">Review History</a></li>
                 </ul>
             </div>
 
             <div class="col-6 col-md-3">
-                <h6 class="text-white fw-bold mb-3">Academic Context</h6>
+                <h6 class="text-white fw-bold mb-3">Capabilities</h6>
                 <ul class="list-unstyled small mb-0">
-                    <li class="mb-2 text-white-50">Degree: B.Tech Computer Engineering</li>
-                    <li class="mb-2 text-white-50">Semester: Semester 5</li>
-                    <li class="mb-2 text-white-50">Subject: .NET Technologies</li>
-                    <li class="mb-2 text-white-50">Team: 2-Student Collaborative Project</li>
+                    <li class="mb-2"><a asp-controller="Home" asp-action="Index" asp-fragment="features" class="text-white-50 text-decoration-none hover-text-white">Skill Gap Radar</a></li>
+                    <li class="mb-2"><a asp-controller="Home" asp-action="Index" asp-fragment="how-it-works" class="text-white-50 text-decoration-none hover-text-white">How It Works</a></li>
+                    <li class="mb-2"><a asp-controller="Home" asp-action="Index" asp-fragment="methodology" class="text-white-50 text-decoration-none hover-text-white">Transparent Scoring</a></li>
+                    <li class="mb-2"><a asp-controller="Account" asp-action="Register" class="text-white-50 text-decoration-none hover-text-white">Create Free Account</a></li>
                 </ul>
             </div>
 
             <div class="col-12 col-md-3">
-                <h6 class="text-white fw-bold mb-3">Security & Transparency</h6>
+                <h6 class="text-white fw-bold mb-3">Our Promise</h6>
                 <p class="small text-white-50 mb-2">
-                    Password security via PBKDF2 SHA-256 with cryptographic salting. Strict ADO.NET parameterized queries to guarantee SQL injection immunity.
+                    Your career documents stay strictly private to your account. We give honest, practical suggestions to showcase your real achievements — never fake fluff.
                 </p>
-                <span class="badge bg-secondary">Pure .NET 10 LTS Architecture</span>
+                <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25 rounded-pill px-3 py-1">Built for Career Growth</span>
             </div>
         </div>
 
         <div class="border-top border-secondary border-opacity-25 mt-4 pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center small">
-            <div>&copy; @DateTime.UtcNow.Year AI Resume Analyzer. All rights reserved. Academic Project.</div>
-            <div class="text-white-50 mt-2 mt-md-0">Engineered with ASP.NET Core &amp; ADO.NET</div>
+            <div>&copy; @DateTime.UtcNow.Year AI Resume Analyzer. All rights reserved.</div>
+            <div class="text-white-50 mt-2 mt-md-0">Empowering smarter job applications every day.</div>
         </div>
     </div>
 </footer>

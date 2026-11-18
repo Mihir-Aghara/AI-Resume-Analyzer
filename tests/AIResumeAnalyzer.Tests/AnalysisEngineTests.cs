@@ -100,5 +100,46 @@ namespace AIResumeAnalyzer.Tests
             Assert.True(result.OverallScore >= 0m);
             Assert.True(result.OverallScore <= 100m);
         }
+
+        [Fact]
+        public async Task AnalyzeResumeAsync_TransferableSkill_AwardsFairPartialCreditAndBridgeAdvice()
+        {
+            string resume = @"
+                B.Tech Computer Engineering student. Built full-stack web apps with MySQL and GitHub.
+                Optimized query latency by 35% for 500+ users.
+            ";
+
+            string jobDescription = @"
+                Looking for an engineer with SQL Server and Git skills.
+            ";
+
+            var result = await _engine.AnalyzeResumeAsync(resume, jobDescription, 1, 1, 1);
+
+            Assert.NotNull(result);
+            // Both SQL Server (via MySQL) and Git (via GitHub) get 50% transferable credit => SkillsScore should be 50
+            Assert.Equal(50m, result.SkillsScore);
+            Assert.Contains(result.Recommendations, r => r.Category == "Transferable Skill Bridge" && r.Suggestion.Contains("MySQL"));
+            Assert.Contains(result.Recommendations, r => r.Priority == "Strength");
+        }
+
+        [Fact]
+        public async Task AnalyzeResumeAsync_MissingQuantifiedImpact_ProvidesActionableCoaching()
+        {
+            string resume = @"
+                Skills: C#, ASP.NET Core, SQL Server.
+                Worked on a student portal project during college.
+            ";
+
+            string jobDescription = @"
+                We are a fast-paced equal opportunity employer seeking a passionate candidate with C#, ASP.NET Core, and SQL Server skills.
+            ";
+
+            var result = await _engine.AnalyzeResumeAsync(resume, jobDescription, 1, 1, 1);
+
+            Assert.NotNull(result);
+            Assert.True(result.OverallScore >= 75m, $"Expected fair score >= 75 even with HR fluff, got {result.OverallScore}");
+            Assert.Contains(result.Recommendations, r => r.Category == "Quantified Impact");
+            Assert.Contains(result.Recommendations, r => r.Priority == "Strength");
+        }
     }
 }
