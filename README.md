@@ -1,7 +1,7 @@
 # AI Resume Analyzer
 
 **Academic Submission – B.Tech Computer Engineering, Semester 5**  
-**Course:** .NET Technologies | **Platform:** ASP.NET Core MVC (.NET 10 LTS) & Microsoft SQL Server
+**Course:** .NET Technologies | **Platform:** ASP.NET Core MVC (.NET 8.0 LTS · Visual Studio 2022) & Microsoft SQL Server
 
 ---
 
@@ -40,7 +40,7 @@ In strict accordance with the academic syllabus constraints:
 
 | Component | Technology | Rationale & Configuration |
 | :--- | :--- | :--- |
-| **Language** | **C# 14 / .NET 10 LTS** | Primary language; strong-named signed assemblies; zero non-.NET backend runtimes. |
+| **Language** | **C# 12 / .NET 8.0 LTS** | Primary language; Visual Studio 2022 compatible; strong-named signed assemblies; zero non-.NET backend runtimes. |
 | **Web Framework** | **ASP.NET Core MVC** | Model-View-Controller pattern, Razor Views, Partial Views, Tag Helpers, and Model Validation. |
 | **Database Engine** | **Microsoft SQL Server 2025** | LocalDB instance `(localdb)\MSSQLLocalDB`; 3NF normalized schema. |
 | **Data Access** | **Pure ADO.NET** | `SqlConnection`, `SqlCommand`, `SqlDataReader`, `SqlDataAdapter`, `DataSet`, `DataTable`, `SqlTransaction`. **Strictly NO Entity Framework Core as primary ORM.** |
@@ -224,7 +224,7 @@ $$\text{Overall Score} = (0.40 \times \text{Skills}) + (0.25 \times \text{Keywor
 
 ### Prerequisites
 - Windows 10 / 11 (x64)
-- [.NET 10 LTS SDK](https://dotnet.microsoft.com/)
+- [.NET 8.0 LTS / .NET 9.0 SDK](https://dotnet.microsoft.com/) with Visual Studio 2022
 - Microsoft SQL Server or SQL Server LocalDB (`(localdb)\MSSQLLocalDB`)
 - Git
 
