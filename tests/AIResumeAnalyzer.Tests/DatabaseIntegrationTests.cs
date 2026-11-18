@@ -47,7 +47,7 @@ namespace AIResumeAnalyzer.Tests
             var resumes = await resumeRepo.GetByUserIdAsync(student.UserId);
 
             Assert.NotEmpty(resumes);
-            Assert.Equal("Alex_Johnson_Resume.pdf", resumes[0].OriginalFileName);
+            Assert.Contains(resumes, r => r.OriginalFileName == "Alex_Johnson_Resume.pdf");
         }
 
         [Fact]

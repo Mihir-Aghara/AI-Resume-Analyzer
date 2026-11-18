@@ -42,6 +42,7 @@ var app = builder.Build();
 // 5. Custom Security & Exception Middleware
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -167,15 +167,44 @@ namespace AIResumeAnalyzer.Repositories
 
         public async Task<bool> DeleteAsync(int resumeId, int userId)
         {
-            const string sql = "DELETE FROM Resumes WHERE ResumeId = @ResumeId AND UserId = @UserId;";
             await using var conn = await _db.CreateOpenConnectionAsync();
-            await using var cmd = new SqlCommand(sql, conn);
+            await using var transaction = (SqlTransaction)await conn.BeginTransactionAsync();
 
-            cmd.Parameters.Add(new SqlParameter("@ResumeId", SqlDbType.Int) { Value = resumeId });
-            cmd.Parameters.Add(new SqlParameter("@UserId", SqlDbType.Int) { Value = userId });
+            try
+            {
+                // First delete any dependent analysis records (AnalysisSkills & Recommendations cascade automatically)
+                const string deleteAnalysesSql = @"
+                    DELETE FROM ResumeAnalyses
+                    WHERE ResumeId = @ResumeId AND UserId = @UserId;";
 
-            int rows = await cmd.ExecuteNonQueryAsync();
-            return rows > 0;
+                await using (var analysesCmd = new SqlCommand(deleteAnalysesSql, conn, transaction))
+                {
+                    analysesCmd.Parameters.Add(new SqlParameter("@ResumeId", SqlDbType.Int) { Value = resumeId });
+                    analysesCmd.Parameters.Add(new SqlParameter("@UserId", SqlDbType.Int) { Value = userId });
+                    await analysesCmd.ExecuteNonQueryAsync();
+                }
+
+                // Now safely delete the resume record itself
+                const string deleteResumeSql = @"
+                    DELETE FROM Resumes
+                    WHERE ResumeId = @ResumeId AND UserId = @UserId;";
+
+                int rows;
+                await using (var resumeCmd = new SqlCommand(deleteResumeSql, conn, transaction))
+                {
+                    resumeCmd.Parameters.Add(new SqlParameter("@ResumeId", SqlDbType.Int) { Value = resumeId });
+                    resumeCmd.Parameters.Add(new SqlParameter("@UserId", SqlDbType.Int) { Value = userId });
+                    rows = await resumeCmd.ExecuteNonQueryAsync();
+                }
+
+                await transaction.CommitAsync();
+                return rows > 0;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         private static Resume MapResume(SqlDataReader reader)

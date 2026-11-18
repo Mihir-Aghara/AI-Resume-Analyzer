@@ -31,13 +31,20 @@ namespace AIResumeAnalyzer.Middleware
                 {
                     await HandleApiExceptionAsync(context, ex);
                 }
-                else
+                else if (!context.Response.HasStarted && !context.Request.Path.StartsWithSegments("/Home/Error"))
                 {
-                    // For Web MVC pages, redirect to error page
-                    if (!context.Response.HasStarted)
+                    context.Response.Clear();
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Items["ErrorPath"] = context.Request.Path.Value;
+                    if (_env.IsDevelopment())
                     {
-                        context.Response.Redirect("/Home/Error");
+                        context.Items["ErrorDetail"] = $"{ex.GetType().Name}: {ex.Message}";
                     }
+
+                    // Re-execute the polished Error view cleanly (works for both GET and POST failures)
+                    context.Request.Path = "/Home/Error";
+                    context.Request.Method = HttpMethods.Get;
+                    await _next(context);
                 }
             }
         }
@@ -47,8 +54,8 @@ namespace AIResumeAnalyzer.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            string message = _env.IsDevelopment() 
-                ? exception.Message 
+            string message = _env.IsDevelopment()
+                ? exception.Message
                 : "An unexpected internal server error occurred while processing your request.";
 
             var response = ApiResponse<object>.Fail(message);
