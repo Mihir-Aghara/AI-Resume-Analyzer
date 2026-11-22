@@ -1,51 +1,61 @@
 @model AIResumeAnalyzer.ViewModels.RegisterViewModel
 @{
-    ViewData["Title"] = "Create Account - AI Resume Analyzer";
+    ViewData["Title"] = "Create Free Account - AI Resume Analyzer";
 }
 
-<div class="row justify-content-center py-4">
-    <div class="col-12 col-md-9 col-lg-6">
+<div class="row justify-content-center py-5">
+    <div class="col-12 col-md-9 col-lg-6 col-xl-5">
         <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="card-header bg-gradient bg-success text-white text-center py-4">
-                <div class="d-inline-flex p-3 rounded-circle bg-white bg-opacity-25 mb-2">
-                    <i class="bi bi-person-plus fs-2 text-white"></i>
+            <!-- Header -->
+            <div class="card-header bg-dark text-white text-center py-4 border-0">
+                <div class="d-inline-flex p-3 rounded-circle bg-primary bg-opacity-25 mb-3">
+                    <span class="p-2 rounded-3 bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                        <i class="bi bi-person-plus-fill fs-4"></i>
+                    </span>
                 </div>
-                <h3 class="fw-bold mb-1">Create an Account</h3>
+                <h3 class="fw-bold mb-1">Create Your Account</h3>
                 <p class="text-white-50 mb-0 small">Get started with AI-driven ATS resume analysis and job matching</p>
             </div>
 
             <div class="card-body p-4 p-md-5">
                 <partial name="_NotificationPartial" />
 
-                <form asp-action="Register" method="post" novalidate>
+                <form asp-action="Register" method="post" id="registerForm" novalidate>
                     @Html.AntiForgeryToken()
 
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
 
+                    <!-- Full Name -->
                     <div class="mb-3">
                         <label asp-for="FullName" class="form-label fw-semibold small text-muted"></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
-                            <input asp-for="FullName" class="form-control border-start-0" placeholder="e.g. John Doe" autocomplete="name" required />
+                            <input asp-for="FullName" class="form-control border-start-0" placeholder="e.g. Alex Morgan" autocomplete="name" required />
                         </div>
                         <span asp-validation-for="FullName" class="text-danger small"></span>
                     </div>
 
+                    <!-- Real Email Address -->
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
-                            <input asp-for="Email" class="form-control border-start-0" placeholder="name@college.edu" autocomplete="email" required />
+                            <input asp-for="Email" type="email" class="form-control border-start-0" placeholder="name@example.com" autocomplete="email" required />
                         </div>
                         <span asp-validation-for="Email" class="text-danger small"></span>
+                        <div class="form-text small text-muted">We will send an onboarding confirmation and verification to this email.</div>
                     </div>
 
+                    <!-- Password and Confirm Password -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label asp-for="Password" class="form-label fw-semibold small text-muted"></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
-                                <input asp-for="Password" class="form-control border-start-0" placeholder="••••••••" autocomplete="new-password" required />
+                                <input asp-for="Password" type="password" class="form-control border-start-0 border-end-0" id="regPassword" placeholder="••••••••" autocomplete="new-password" required />
+                                <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('regPassword', 'eyeIconReg')">
+                                    <i class="bi bi-eye" id="eyeIconReg"></i>
+                                </button>
                             </div>
                             <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
@@ -53,30 +63,47 @@
                             <label asp-for="ConfirmPassword" class="form-label fw-semibold small text-muted"></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-check2-circle text-muted"></i></span>
-                                <input asp-for="ConfirmPassword" class="form-control border-start-0" placeholder="••••••••" autocomplete="new-password" required />
+                                <input asp-for="ConfirmPassword" type="password" class="form-control border-start-0 border-end-0" id="regConfirmPassword" placeholder="••••••••" autocomplete="new-password" required />
+                                <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('regConfirmPassword', 'eyeIconConfirm')">
+                                    <i class="bi bi-eye" id="eyeIconConfirm"></i>
+                                </button>
                             </div>
                             <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                         </div>
                     </div>
+                    <div class="form-text small text-muted mb-3">
+                        <i class="bi bi-info-circle me-1"></i>Must be at least 8 characters long and contain both letters and numbers.
+                    </div>
 
+                    <!-- Accept Terms -->
                     <div class="mb-4 form-check">
                         <input asp-for="AcceptTerms" class="form-check-input" id="termsCheck" />
-                        <label asp-for="AcceptTerms" class="form-check-label small text-muted">
-                            I understand that analysis scores are algorithmic benchmarks and do not guarantee interview shortlisting.
+                        <label asp-for="AcceptTerms" class="form-check-label small text-muted" for="termsCheck">
+                            I agree to the <a asp-controller="Home" asp-action="Privacy" target="_blank" class="text-decoration-none">Privacy Policy</a> and understand that my uploaded resumes are kept private and confidential.
                         </label>
                         <div><span asp-validation-for="AcceptTerms" class="text-danger small"></span></div>
                     </div>
 
+                    <!-- Submit Button -->
                     <div class="d-grid mb-4">
-                        <button type="submit" class="btn btn-success btn-lg rounded-pill fw-semibold shadow-sm">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm">
                             <i class="bi bi-arrow-right-circle me-2"></i>Create Free Account
                         </button>
                     </div>
 
+                    <!-- Trust Signals -->
+                    <div class="text-center py-2 px-3 bg-light rounded-3 mb-4">
+                        <div class="d-flex justify-content-around text-muted small">
+                            <span><i class="bi bi-check-circle-fill text-success me-1"></i>Free Forever</span>
+                            <span><i class="bi bi-shield-fill-check text-primary me-1"></i>Private Resumes</span>
+                            <span><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Instant Analysis</span>
+                        </div>
+                    </div>
+
                     <div class="text-center">
                         <p class="text-muted small mb-0">
-                            Already registered? 
-                            <a asp-action="Login" class="text-success fw-bold text-decoration-none">Sign in here</a>
+                            Already have an account? 
+                            <a asp-action="Login" class="text-primary fw-bold text-decoration-none">Sign in here</a>
                         </p>
                     </div>
                 </form>
@@ -87,4 +114,21 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+    </script>
 }

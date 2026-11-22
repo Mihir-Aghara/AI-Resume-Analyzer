@@ -1,8 +1,13 @@
+using System.Security.Claims;
+using System.Security.Cryptography;
 using AIResumeAnalyzer.Filters;
 using AIResumeAnalyzer.Interfaces;
 using AIResumeAnalyzer.Models;
 using AIResumeAnalyzer.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AIResumeAnalyzer.Controllers
 {
@@ -10,15 +15,21 @@ namespace AIResumeAnalyzer.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IEmailService _emailService;
+        private readonly IMemoryCache _memoryCache;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
+            IEmailService emailService,
+            IMemoryCache memoryCache,
             ILogger<AccountController> logger)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _emailService = emailService;
+            _memoryCache = memoryCache;
             _logger = logger;
         }
 
@@ -26,7 +37,7 @@ namespace AIResumeAnalyzer.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            if (HttpContext.Session.GetInt32(SessionKeys.UserId).HasValue)
+            if (User.Identity?.IsAuthenticated == true || HttpContext.Session.GetInt32(SessionKeys.UserId).HasValue)
             {
                 return RedirectToAction("Index", "Dashboard");
             }
@@ -44,7 +55,9 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            var existingUser = await _userRepository.GetByEmailAsync(model.Email);
+            string normalizedEmail = model.Email.Trim().ToLowerInvariant();
+
+            var existingUser = await _userRepository.GetByEmailAsync(normalizedEmail);
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "An account with this email address already exists.");
@@ -56,7 +69,7 @@ namespace AIResumeAnalyzer.Controllers
             var newUser = new User
             {
                 FullName = model.FullName.Trim(),
-                Email = model.Email.Trim().ToLowerInvariant(),
+                Email = normalizedEmail,
                 PasswordHash = hash,
                 PasswordSalt = salt,
                 Role = "User",
@@ -71,11 +84,20 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            // Auto-login newly registered user
-            HttpContext.Session.SetInt32(SessionKeys.UserId, userId);
-            HttpContext.Session.SetString(SessionKeys.UserName, newUser.FullName);
-            HttpContext.Session.SetString(SessionKeys.UserEmail, newUser.Email);
-            HttpContext.Session.SetString(SessionKeys.UserRole, newUser.Role);
+            newUser.UserId = userId;
+
+            // Dispatch Onboarding Welcome Email
+            try
+            {
+                await _emailService.SendWelcomeEmailAsync(newUser.Email, newUser.FullName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not send welcome email to {Email}", newUser.Email);
+            }
+
+            // Issue persistent authentication cookie & session claims
+            await SignInUserAsync(newUser, isPersistent: true);
 
             TempData["SuccessMessage"] = $"Welcome to AI Resume Analyzer, {newUser.FullName}! Your account is now active.";
             return RedirectToAction("Index", "Dashboard");
@@ -85,9 +107,11 @@ namespace AIResumeAnalyzer.Controllers
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
-            if (HttpContext.Session.GetInt32(SessionKeys.UserId).HasValue)
+            if (User.Identity?.IsAuthenticated == true || HttpContext.Session.GetInt32(SessionKeys.UserId).HasValue)
             {
-                string? role = HttpContext.Session.GetString(SessionKeys.UserRole);
+                string? role = HttpContext.Session.GetString(SessionKeys.UserRole) 
+                               ?? User.FindFirst(ClaimTypes.Role)?.Value;
+
                 if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
                 {
                     return RedirectToAction("Dashboard", "Admin");
@@ -109,7 +133,9 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            var user = await _userRepository.GetByEmailAsync(model.Email);
+            string normalizedEmail = model.Email.Trim().ToLowerInvariant();
+
+            var user = await _userRepository.GetByEmailAsync(normalizedEmail);
             if (user == null || !_passwordHasher.VerifyPassword(model.Password, user.PasswordHash, user.PasswordSalt))
             {
                 ModelState.AddModelError(string.Empty, "Invalid email address or password.");
@@ -122,11 +148,8 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            // Set session claims
-            HttpContext.Session.SetInt32(SessionKeys.UserId, user.UserId);
-            HttpContext.Session.SetString(SessionKeys.UserName, user.FullName);
-            HttpContext.Session.SetString(SessionKeys.UserEmail, user.Email);
-            HttpContext.Session.SetString(SessionKeys.UserRole, user.Role);
+            // Issue authentication cookie & session claims
+            await SignInUserAsync(user, model.RememberMe);
 
             TempData["SuccessMessage"] = $"Welcome back, {user.FullName}!";
 
@@ -146,11 +169,128 @@ namespace AIResumeAnalyzer.Controllers
         // POST: /Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear();
-            TempData["InfoMessage"] = "You have been successfully logged out.";
+            TempData["InfoMessage"] = "You have been safely signed out of your account.";
             return RedirectToAction("Login", "Account");
+        }
+
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordViewModel());
+        }
+
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string normalizedEmail = model.Email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(normalizedEmail);
+
+            if (user != null && user.IsActive)
+            {
+                // Generate cryptographically secure reset token
+                byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
+                string token = Convert.ToHexString(tokenBytes).ToLowerInvariant();
+
+                // Cache token for 1 hour
+                string cacheKey = $"pwd_reset_{token}";
+                _memoryCache.Set(cacheKey, user.Email, TimeSpan.FromHours(1));
+
+                string resetUrl = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme) 
+                                  ?? $"{Request.Scheme}://{Request.Host}/Account/ResetPassword?token={token}&email={Uri.EscapeDataString(user.Email)}";
+
+                try
+                {
+                    await _emailService.SendPasswordResetEmailAsync(user.Email, user.FullName, resetUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send password reset email to {Email}", user.Email);
+                }
+            }
+
+            // Always display same confirmation to protect against account enumeration
+            TempData["SuccessMessage"] = "If an account matches that email address, a password reset link has been dispatched to your inbox.";
+            return RedirectToAction("Login");
+        }
+
+        // GET: /Account/ResetPassword
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
+            {
+                TempData["ErrorMessage"] = "Invalid or expired password reset link.";
+                return RedirectToAction("Login");
+            }
+
+            string cacheKey = $"pwd_reset_{token.Trim().ToLowerInvariant()}";
+            if (!_memoryCache.TryGetValue(cacheKey, out string? cachedEmail) ||
+                !string.Equals(cachedEmail, email.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] = "This password reset link is invalid or has expired. Please request a new one.";
+                return RedirectToAction("ForgotPassword");
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Token = token,
+                Email = email
+            };
+
+            return View(model);
+        }
+
+        // POST: /Account/ResetPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            string cacheKey = $"pwd_reset_{model.Token.Trim().ToLowerInvariant()}";
+            if (!_memoryCache.TryGetValue(cacheKey, out string? cachedEmail) ||
+                !string.Equals(cachedEmail, model.Email.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] = "This password reset link has expired. Please request a new reset link.";
+                return RedirectToAction("ForgotPassword");
+            }
+
+            var user = await _userRepository.GetByEmailAsync(model.Email.Trim().ToLowerInvariant());
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User account not found.";
+                return RedirectToAction("Login");
+            }
+
+            var (newHash, newSalt) = _passwordHasher.HashPassword(model.NewPassword);
+            bool updated = await _userRepository.UpdatePasswordAsync(user.UserId, newHash, newSalt);
+
+            if (updated)
+            {
+                // Invalidate the reset token
+                _memoryCache.Remove(cacheKey);
+
+                TempData["SuccessMessage"] = "Your password has been successfully reset. You can now sign in with your new credentials.";
+                return RedirectToAction("Login");
+            }
+
+            ModelState.AddModelError(string.Empty, "Failed to update password. Please try again.");
+            return View(model);
         }
 
         // GET: /Account/Profile
@@ -200,19 +340,28 @@ namespace AIResumeAnalyzer.Controllers
                 return RedirectToAction("Profile");
             }
 
+            string normalizedEmail = model.Email.Trim().ToLowerInvariant();
+
             // Check if email changed and is taken by another user
-            var existing = await _userRepository.GetByEmailAsync(model.Email);
+            var existing = await _userRepository.GetByEmailAsync(normalizedEmail);
             if (existing != null && existing.UserId != sessionUserId.Value)
             {
                 TempData["ErrorMessage"] = "The email address is already in use by another account.";
                 return RedirectToAction("Profile");
             }
 
-            bool success = await _userRepository.UpdateProfileAsync(sessionUserId.Value, model.FullName.Trim(), model.Email.Trim());
+            bool success = await _userRepository.UpdateProfileAsync(sessionUserId.Value, model.FullName.Trim(), normalizedEmail);
             if (success)
             {
                 HttpContext.Session.SetString(SessionKeys.UserName, model.FullName.Trim());
-                HttpContext.Session.SetString(SessionKeys.UserEmail, model.Email.Trim().ToLowerInvariant());
+                HttpContext.Session.SetString(SessionKeys.UserEmail, normalizedEmail);
+
+                var user = await _userRepository.GetByIdAsync(sessionUserId.Value);
+                if (user != null)
+                {
+                    await SignInUserAsync(user, isPersistent: true);
+                }
+
                 TempData["SuccessMessage"] = "Profile details updated successfully.";
             }
             else
@@ -247,9 +396,9 @@ namespace AIResumeAnalyzer.Controllers
                 return RedirectToAction("Profile");
             }
 
-            if (model.NewPassword.Length < 6)
+            if (model.NewPassword.Length < 8)
             {
-                TempData["ErrorMessage"] = "New password must be at least 6 characters long.";
+                TempData["ErrorMessage"] = "New password must be at least 8 characters long.";
                 return RedirectToAction("Profile");
             }
 
@@ -280,6 +429,36 @@ namespace AIResumeAnalyzer.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        // Private helper to issue claims-based persistent auth cookie and sync session
+        private async Task SignInUserAsync(User user, bool isPersistent)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = isPersistent,
+                ExpiresUtc = isPersistent ? DateTimeOffset.UtcNow.AddDays(14) : null,
+                AllowRefresh = true
+            };
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
+
+            // Sync ASP.NET Core Session state
+            HttpContext.Session.SetInt32(SessionKeys.UserId, user.UserId);
+            HttpContext.Session.SetString(SessionKeys.UserName, user.FullName);
+            HttpContext.Session.SetString(SessionKeys.UserEmail, user.Email);
+            HttpContext.Session.SetString(SessionKeys.UserRole, user.Role);
         }
     }
 }

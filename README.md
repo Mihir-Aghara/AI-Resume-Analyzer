@@ -16,7 +16,7 @@ In contemporary recruitment pipelines, job seekers frequently submit resumes wit
 ## 2. Key Features
 
 ### Candidate Features
-- **Account Management & Authentication:** Secure registration and login using PBKDF2 SHA-256 password hashing with cryptographic salt, secure session cookies, and profile management.
+- **Enterprise User Authentication & Onboarding:** Secure real-user registration and login using ASP.NET Core Cookie Authentication with claims and 14-day persistent login, PBKDF2 SHA-256 password hashing with cryptographic salt, transactional onboarding welcome emails, self-service password reset, and profile management.
 - **Secure Resume Upload & Extraction:** Drag-and-drop document upload with binary magic byte signature verification, file size limits (5 MB), and GUID storage outside web roots. Pure .NET text extraction using `PdfPig` (PDF) and `DocumentFormat.OpenXml` (DOCX).
 - **Intelligent 4-Pillar Scoring Engine:** Explainable evaluation across:
   - Technical Skills Match (40% Weight)

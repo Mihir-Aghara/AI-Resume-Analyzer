@@ -1,10 +1,13 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @{
+    var userClaims = User;
+    bool isAuth = userClaims.Identity?.IsAuthenticated == true;
     var session = HttpContextAccessor.HttpContext?.Session;
     int? userId = session?.GetInt32(SessionKeys.UserId);
-    string? userName = session?.GetString(SessionKeys.UserName);
-    string? userRole = session?.GetString(SessionKeys.UserRole);
-    bool isLoggedIn = userId.HasValue && userId.Value > 0;
+    string? userName = session?.GetString(SessionKeys.UserName) ?? userClaims.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+    string? userEmail = session?.GetString(SessionKeys.UserEmail) ?? userClaims.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+    string? userRole = session?.GetString(SessionKeys.UserRole) ?? userClaims.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    bool isLoggedIn = (userId.HasValue && userId.Value > 0) || isAuth;
     bool isAdmin = string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase);
 }
 
@@ -97,9 +100,14 @@
                             }
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow">
-                            <li><h6 class="dropdown-header">Signed in as <strong>@userName</strong></h6></li>
                             <li>
-                                <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                <div class="px-3 py-2 border-bottom border-secondary">
+                                    <div class="fw-semibold text-white">@(userName ?? "User")</div>
+                                    <div class="small text-white-50 text-truncate" style="max-width: 200px;">@(userEmail ?? "")</div>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item mt-1" asp-controller="Account" asp-action="Profile">
                                     <i class="bi bi-person me-2"></i>My Profile
                                 </a>
                             </li>
@@ -126,7 +134,7 @@
                         <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
                     </a>
                     <a asp-controller="Account" asp-action="Register" class="btn btn-primary rounded-pill px-4 py-1 fw-semibold shadow-sm">
-                        Get Started
+                        Get Started Free
                     </a>
                 }
             </div>
