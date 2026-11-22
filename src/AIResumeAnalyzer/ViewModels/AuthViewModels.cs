@@ -28,9 +28,26 @@ namespace AIResumeAnalyzer.ViewModels
         [Display(Name = "Confirm Password")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        [Range(typeof(bool), "true", "true", ErrorMessage = "You must agree to the Terms of Service and Privacy Policy.")]
+        [MustBeTrue(ErrorMessage = "You must agree to the Terms of Service and Privacy Policy to continue.")]
         [Display(Name = "I agree to the Terms of Service and Privacy Policy")]
         public bool AcceptTerms { get; set; }
+    }
+
+    /// <summary>
+    /// Custom validation attribute to ensure boolean checkboxes (terms & conditions)
+    /// evaluate to true without triggering jQuery Validate's broken range numeric conversion.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    public class MustBeTrueAttribute : ValidationAttribute
+    {
+        public MustBeTrueAttribute() : base("You must agree to the Terms of Service and Privacy Policy to continue.")
+        {
+        }
+
+        public override bool IsValid(object? value)
+        {
+            return value is bool b && b;
+        }
     }
 
     public class LoginViewModel

@@ -130,5 +130,13 @@
                 icon.classList.add('bi-eye');
             }
         }
+
+        // Clear terms validation error immediately when user toggles the checkbox
+        document.getElementById('termsCheck')?.addEventListener('change', function () {
+            const errorSpan = document.querySelector('[data-valmsg-for="AcceptTerms"]');
+            if (this.checked && errorSpan) {
+                errorSpan.innerText = '';
+            }
+        });
     </script>
 }

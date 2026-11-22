@@ -50,6 +50,11 @@ namespace AIResumeAnalyzer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (!model.AcceptTerms)
+            {
+                ModelState.AddModelError(nameof(model.AcceptTerms), "You must agree to the Terms of Service and Privacy Policy to continue.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
