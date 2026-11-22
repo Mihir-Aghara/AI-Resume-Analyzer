@@ -1,22 +1,48 @@
-## Visual Studio / .NET .gitignore
+## ==============================================================================
+## Standard .NET & Visual Studio Git Ignore Rules
+## AI Resume Analyzer - ASP.NET Core MVC & ADO.NET Architecture
+## ==============================================================================
+
+# User-specific files & Visual Studio temporary files
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+.vs/
+.vscode/
+.idea/
+
+# Build results & Binaries
 [Bb]in/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-.vs/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+publish/
+*.nupkg
 
-# App_Data uploads (exclude uploaded test resumes from git repo, keep directory structure)
+# Dynamic Resume Uploads & Temporary Parsing Artifacts
+# Ensures directory structure exists via .gitkeep while ignoring all uploaded user resumes
 src/AIResumeAnalyzer/App_Data/Resumes/*
 !src/AIResumeAnalyzer/App_Data/Resumes/.gitkeep
 
-# Secrets / local overrides
+# Environment-specific configuration and secrets
 appsettings.Development.json
+appsettings.*.local.json
 *.local.json
+*.secrets.json
 
-# Test results
+# Automated Test Results and Code Coverage
 TestResults/
 [Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+
+# SQL Server database files & LocalDB runtime logs
+*.mdf
+*.ldf
+*.ndf
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
