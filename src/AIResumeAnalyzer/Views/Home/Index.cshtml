@@ -7,22 +7,22 @@
 }
 
 <!-- 1. MINIMALIST HERO SECTION -->
-<section class="hero-minimal py-5">
+<section class="hero-rich-white py-5">
     <div class="container py-lg-5 position-relative text-center">
         <!-- Eyebrow Badge -->
-        <div class="hero-eyebrow mb-4 mx-auto">
+        <div class="hero-eyebrow-light mb-4 mx-auto">
             <i class="bi bi-stars"></i>
             <span>Next-Generation Resume Review &amp; Job Match Intelligence</span>
         </div>
 
         <!-- Grand Minimalist Typography -->
-        <h1 class="display-3 fw-extrabold text-white mb-4 tracking-tight">
+        <h1 class="display-3 fw-extrabold text-dark mb-4 tracking-tight">
             Turn Your Resume Into <br class="d-none d-md-block" />
-            <span class="text-gradient-minimal">Interview Invitations.</span>
+            <span class="text-gradient-hero">Interview Invitations.</span>
         </h1>
 
         <!-- Subheading -->
-        <p class="lead text-white-50 mx-auto mb-5" style="max-width: 740px; font-size: 1.25rem; line-height: 1.75;">
+        <p class="lead text-secondary mx-auto mb-5" style="max-width: 740px; font-size: 1.25rem; line-height: 1.75; color: #475569 !important;">
             Stop submitting applications into the dark. Benchmark your resume against target roles with transparent 4-pillar scoring, instant skill gap clarity, and actionable, recruiter-aligned coaching.
         </p>
 
@@ -33,7 +33,7 @@
                 <a asp-controller="Analysis" asp-action="Create" class="btn btn-hero-primary btn-lg rounded-pill px-5 py-3 fw-semibold shadow-lg">
                     <i class="bi bi-cpu me-2"></i>Analyze a Resume Now
                 </a>
-                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-hero-ghost btn-lg rounded-pill px-4 py-3 fw-semibold">
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-hero-secondary-light btn-lg rounded-pill px-4 py-3 fw-semibold">
                     <i class="bi bi-speedometer2 me-2"></i>Open Dashboard
                 </a>
             }
@@ -42,41 +42,41 @@
                 <a asp-controller="Account" asp-action="Register" class="btn btn-hero-primary btn-lg rounded-pill px-5 py-3 fw-semibold shadow-lg">
                     <i class="bi bi-arrow-right-circle me-2"></i>Analyze Your Resume Free
                 </a>
-                <a href="#how-it-works" class="btn btn-hero-ghost btn-lg rounded-pill px-4 py-3 fw-semibold">
+                <a href="#how-it-works" class="btn btn-hero-secondary-light btn-lg rounded-pill px-4 py-3 fw-semibold">
                     <i class="bi bi-play-circle me-2"></i>See How It Works
                 </a>
             }
         </div>
 
         <!-- Minimalist Stats Bar -->
-        <div class="hero-stats-bar p-4 mx-auto mb-4" style="max-width: 840px;">
+        <div class="hero-stats-bar-light p-4 mx-auto mb-4" style="max-width: 840px;">
             <div class="row g-4 text-center">
-                <div class="col-12 col-md-4 stat-item">
-                    <div class="fs-2 fw-extrabold text-white mb-1">4-Pillar</div>
-                    <div class="text-white-50 small">Deterministic ATS Evaluation</div>
+                <div class="col-12 col-md-4 stat-item-light">
+                    <div class="fs-2 fw-extrabold text-primary mb-1">4-Pillar</div>
+                    <div class="text-secondary small fw-medium">Deterministic ATS Evaluation</div>
                 </div>
-                <div class="col-12 col-md-4 stat-item">
-                    <div class="fs-2 fw-extrabold text-white mb-1">&lt; 60s</div>
-                    <div class="text-white-50 small">Instant PDF &amp; Word Extraction</div>
+                <div class="col-12 col-md-4 stat-item-light">
+                    <div class="fs-2 fw-extrabold text-dark mb-1">&lt; 60s</div>
+                    <div class="text-secondary small fw-medium">Instant PDF &amp; Word Extraction</div>
                 </div>
-                <div class="col-12 col-md-4 stat-item">
-                    <div class="fs-2 fw-extrabold text-white mb-1">100%</div>
-                    <div class="text-white-50 small">Private &amp; Account-Isolated</div>
+                <div class="col-12 col-md-4 stat-item-light">
+                    <div class="fs-2 fw-extrabold text-success mb-1">100%</div>
+                    <div class="text-secondary small fw-medium">Private &amp; Account-Isolated</div>
                 </div>
             </div>
         </div>
 
         <!-- Trust Signals -->
-        <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 text-white-50 small pt-2">
-            <span class="d-inline-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 pt-2">
+            <span class="trust-pill">
                 <i class="bi bi-shield-check text-success"></i>
                 <span>Strict Document Privacy</span>
             </span>
-            <span class="d-inline-flex align-items-center gap-2">
+            <span class="trust-pill">
                 <i class="bi bi-file-earmark-check text-primary"></i>
                 <span>PDF &amp; Word DOCX Native</span>
             </span>
-            <span class="d-inline-flex align-items-center gap-2">
+            <span class="trust-pill">
                 <i class="bi bi-check2-circle text-info"></i>
                 <span>Explainable Career Coaching</span>
             </span>
@@ -85,62 +85,62 @@
 </section>
 
 <!-- 2. VALUE PROPOSITION STRIP -->
-<section class="py-5 bg-white border-bottom" id="features">
+<section class="py-5 border-bottom" style="background-color: #f8fafc;" id="features">
     <div class="container py-lg-4">
         <div class="text-center mx-auto mb-5" style="max-width: 680px;">
             <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-semibold mb-2">
                 WHY CANDIDATES TRUST US
             </span>
-            <h2 class="fw-extrabold mb-3">Designed for Clarity, Built for Real Career Growth</h2>
-            <p class="text-muted mb-0">
+            <h2 class="fw-extrabold text-dark mb-3">Designed for Clarity, Built for Real Career Growth</h2>
+            <p class="text-secondary mb-0">
                 Most resume checkers return an arbitrary, opaque number. We break down the exact criteria hiring teams and automated systems evaluate, giving you concrete steps to improve.
             </p>
         </div>
 
         <div class="row g-4">
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 card-hover border">
+                <div class="card h-100 rounded-4 p-4 card-hover border-0 shadow-sm bg-white">
                     <div class="icon-box-soft bg-primary bg-opacity-10 text-primary mb-3">
                         <i class="bi bi-bullseye"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Smart Skill Gap Radar</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Smart Skill Gap Radar</h5>
+                    <p class="text-secondary small mb-0">
                         Instantly distinguish matched competencies from missing requirements and transferable skills you already possess.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 card-hover border">
+                <div class="card h-100 rounded-4 p-4 card-hover border-0 shadow-sm bg-white">
                     <div class="icon-box-soft bg-success bg-opacity-10 text-success mb-3">
                         <i class="bi bi-chat-square-heart"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Recruiter-Proven Guidance</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Recruiter-Proven Guidance</h5>
+                    <p class="text-secondary small mb-0">
                         Actionable recommendations on quantifying achievements, strengthening action verbs, and highlighting role keywords naturally.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 card-hover border">
+                <div class="card h-100 rounded-4 p-4 card-hover border-0 shadow-sm bg-white">
                     <div class="icon-box-soft bg-info bg-opacity-10 text-info mb-3">
                         <i class="bi bi-sliders"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Fair, Balanced Evaluation</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Fair, Balanced Evaluation</h5>
+                    <p class="text-secondary small mb-0">
                         Evaluates skills with partial credit for related stacks — never penalizing exceptional candidates over minor phrasing nuances.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 card-hover border">
+                <div class="card h-100 rounded-4 p-4 card-hover border-0 shadow-sm bg-white">
                     <div class="icon-box-soft bg-warning bg-opacity-10 text-warning mb-3">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">History &amp; PDF Reports</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">History &amp; PDF Reports</h5>
+                    <p class="text-secondary small mb-0">
                         Keep track of multiple resume versions across diverse job postings and export formal, print-ready review dossiers anytime.
                     </p>
                 </div>
@@ -150,53 +150,53 @@
 </section>
 
 <!-- 3. 3-STEP STREAMLINED WORKFLOW -->
-<section class="py-5" id="how-it-works">
+<section class="py-5 bg-white border-bottom" id="how-it-works">
     <div class="container py-lg-4">
         <div class="text-center mx-auto mb-5" style="max-width: 640px;">
             <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-semibold mb-2">
                 STREAMLINED WORKFLOW
             </span>
-            <h2 class="fw-extrabold mb-3">From Document to Interview-Ready in Three Steps</h2>
-            <p class="text-muted mb-0">
+            <h2 class="fw-extrabold text-dark mb-3">From Document to Interview-Ready in Three Steps</h2>
+            <p class="text-secondary mb-0">
                 Zero friction. Simple, straightforward steps to tailor your resume for any role you are excited about.
             </p>
         </div>
 
         <div class="row g-4">
             <div class="col-12 col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 p-lg-5 card-hover position-relative">
+                <div class="card h-100 border rounded-4 p-4 p-lg-5 card-hover position-relative bg-white shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <span class="step-number-minimal">01</span>
                         <i class="bi bi-cloud-arrow-up text-primary fs-2 opacity-75"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Upload Your Document</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Upload Your Document</h5>
+                    <p class="text-secondary small mb-0">
                         Upload your PDF or DOCX resume. Text is extracted securely in pure .NET without third-party cloud leakage.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 p-lg-5 card-hover position-relative">
+                <div class="card h-100 border rounded-4 p-4 p-lg-5 card-hover position-relative bg-white shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <span class="step-number-minimal">02</span>
                         <i class="bi bi-briefcase text-info fs-2 opacity-75"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Paste Target Vacancy</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Paste Target Vacancy</h5>
+                    <p class="text-secondary small mb-0">
                         Provide the job title and requirements from LinkedIn, Indeed, or company boards to establish the target standard.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 p-lg-5 card-hover position-relative">
+                <div class="card h-100 border rounded-4 p-4 p-lg-5 card-hover position-relative bg-white shadow-sm">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <span class="step-number-minimal">03</span>
                         <i class="bi bi-graph-up-arrow text-success fs-2 opacity-75"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Optimize &amp; Apply</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Optimize &amp; Apply</h5>
+                    <p class="text-secondary small mb-0">
                         Review your 4-pillar compatibility breakdown, close high-impact skill gaps, and apply with measurable confidence.
                     </p>
                 </div>
@@ -206,66 +206,66 @@
 </section>
 
 <!-- 4. TRANSPARENT 4-PILLAR SCORING -->
-<section class="py-5 bg-white border-top border-bottom" id="methodology">
+<section class="py-5 border-bottom" style="background-color: #f8fafc;" id="methodology">
     <div class="container py-lg-4">
         <div class="text-center mx-auto mb-5" style="max-width: 680px;">
             <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-semibold mb-2">
                 EXPLAINABLE EVALUATION
             </span>
-            <h2 class="fw-extrabold mb-3">No Black-Box Grades. The Science Behind Your Match Score.</h2>
-            <p class="text-muted mb-0">
+            <h2 class="fw-extrabold text-dark mb-3">No Black-Box Grades. The Science Behind Your Match Score.</h2>
+            <p class="text-secondary mb-0">
                 Every review calculates your readiness across four transparent dimensions designed to simulate modern applicant tracking systems.
             </p>
         </div>
 
         <div class="row g-4">
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 border card-hover">
+                <div class="card h-100 rounded-4 p-4 border-0 shadow-sm card-hover bg-white">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="badge bg-primary rounded-pill px-3 py-1 fw-bold">40% Weight</span>
                         <i class="bi bi-code-square text-primary fs-3"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Technical Skills</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Technical Skills</h5>
+                    <p class="text-secondary small mb-0">
                         Matches core languages, frameworks, libraries, databases, and DevOps tools with partial credit for related stacks.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 border card-hover">
+                <div class="card h-100 rounded-4 p-4 border-0 shadow-sm card-hover bg-white">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="badge bg-info text-dark rounded-pill px-3 py-1 fw-bold">25% Weight</span>
                         <i class="bi bi-search-heart text-info fs-3"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Role Keywords</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Role Keywords</h5>
+                    <p class="text-secondary small mb-0">
                         Pinpoints domain terms and lexical n-grams scanned by automated filters, highlighting natural placement opportunities.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 border card-hover">
+                <div class="card h-100 rounded-4 p-4 border-0 shadow-sm card-hover bg-white">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="badge bg-success rounded-pill px-3 py-1 fw-bold">20% Weight</span>
                         <i class="bi bi-award text-success fs-3"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Impact &amp; Experience</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Impact &amp; Experience</h5>
+                    <p class="text-secondary small mb-0">
                         Evaluates action verbs, project scope, and quantifiable metrics that turn passive duties into standout achievements.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100 rounded-4 p-4 border card-hover">
+                <div class="card h-100 rounded-4 p-4 border-0 shadow-sm card-hover bg-white">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold">15% Weight</span>
                         <i class="bi bi-mortarboard text-warning fs-3"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Education &amp; Readiness</h5>
-                    <p class="text-muted small mb-0">
+                    <h5 class="fw-bold text-dark mb-2">Education &amp; Readiness</h5>
+                    <p class="text-secondary small mb-0">
                         Recognizes academic degrees, relevant coursework, certifications, and portfolio links (GitHub, LinkedIn) for full readiness.
                     </p>
                 </div>
@@ -275,65 +275,65 @@
 </section>
 
 <!-- 5. AUDIENCE SEGMENTS -->
-<section class="py-5">
+<section class="py-5 bg-white border-bottom">
     <div class="container py-lg-4">
         <div class="text-center mx-auto mb-5" style="max-width: 660px;">
             <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3 py-2 fw-semibold mb-2">
                 FOR EVERY CANDIDATE
             </span>
-            <h2 class="fw-extrabold mb-3">Tailored for Every Career Stage</h2>
-            <p class="text-muted mb-0">
+            <h2 class="fw-extrabold text-dark mb-3">Tailored for Every Career Stage</h2>
+            <p class="text-secondary mb-0">
                 Whether applying for your first internship or stepping into a senior leadership position, receive guidance tuned to your goals.
             </p>
         </div>
 
         <div class="row g-4">
             <div class="col-12 col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="card h-100 border rounded-4 p-4 card-hover shadow-sm bg-white">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="icon-box-soft bg-primary bg-opacity-10 text-primary">
                             <i class="bi bi-backpack2"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold mb-0">Students &amp; Freshers</h5>
+                            <h5 class="fw-bold text-dark mb-0">Students &amp; Freshers</h5>
                             <small class="text-muted">Internships &amp; First Roles</small>
                         </div>
                     </div>
-                    <p class="text-muted small mb-0">
+                    <p class="text-secondary small mb-0">
                         Translate academic projects, hackathons, and coursework into crisp bullet points proving readiness to contribute from day one.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="card h-100 border rounded-4 p-4 card-hover shadow-sm bg-white">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="icon-box-soft bg-success bg-opacity-10 text-success">
                             <i class="bi bi-signpost-split"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold mb-0">Career Switchers</h5>
+                            <h5 class="fw-bold text-dark mb-0">Career Switchers</h5>
                             <small class="text-muted">Pivoting to New Stacks</small>
                         </div>
                     </div>
-                    <p class="text-muted small mb-0">
+                    <p class="text-secondary small mb-0">
                         Uncover which transferable skills already carry weight in your new target field and identify the exact skills worth highlighting.
                     </p>
                 </div>
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 card-hover">
+                <div class="card h-100 border rounded-4 p-4 card-hover shadow-sm bg-white">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="icon-box-soft bg-warning bg-opacity-10 text-warning">
                             <i class="bi bi-briefcase-fill"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold mb-0">Working Professionals</h5>
+                            <h5 class="fw-bold text-dark mb-0">Working Professionals</h5>
                             <small class="text-muted">Targeting Senior Roles</small>
                         </div>
                     </div>
-                    <p class="text-muted small mb-0">
+                    <p class="text-secondary small mb-0">
                         Tailor your resume for specific engineering and leadership posts, track past reviews over time, and export clean PDFs.
                     </p>
                 </div>
