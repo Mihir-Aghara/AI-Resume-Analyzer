@@ -64,25 +64,28 @@ h1, h2, h3, h4, h5, h6 {
    STARTUP LANDING PAGE HERO & SECTIONS
    ========================================================================== */
 
-.hero-startup {
+/* ==========================================================================
+   MINIMALIST HERO & STATS AESTHETICS
+   ========================================================================== */
+
+.hero-minimal {
     position: relative;
-    background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.28) 0%, transparent 45%),
-                radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.24) 0%, transparent 45%),
-                radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
-                linear-gradient(160deg, #090e1c 0%, #0f172a 55%, #131f3a 100%);
+    background: radial-gradient(circle at 50% 10%, rgba(37, 99, 235, 0.22) 0%, transparent 65%),
+                radial-gradient(circle at 85% 75%, rgba(99, 102, 241, 0.14) 0%, transparent 55%),
+                linear-gradient(180deg, #070b16 0%, #0d1629 60%, #111c35 100%);
     color: #ffffff;
     overflow: hidden;
 }
 
-.hero-startup::before {
+.hero-minimal::before {
     content: "";
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+        linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, black 45%, transparent 85%);
     pointer-events: none;
 }
 
@@ -90,21 +93,51 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.4rem 1rem;
+    padding: 0.45rem 1.15rem;
     border-radius: 50rem;
-    background: rgba(59, 130, 246, 0.14);
-    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(96, 165, 250, 0.28);
     color: #93c5fd;
     font-size: 0.85rem;
     font-weight: 600;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
 }
 
-.text-gradient-brand {
-    background: linear-gradient(120deg, #60a5fa 0%, #818cf8 45%, #34d399 100%);
+.text-gradient-minimal {
+    background: linear-gradient(135deg, #ffffff 35%, #93c5fd 80%, #60a5fa 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.hero-stats-bar {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.25rem;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.45);
+}
+
+.stat-item {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+@@media (max-width: 767.98px) {
+    .stat-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 1rem;
+    }
+    .stat-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+.stat-item:last-child {
+    border-right: none;
+}
+
+.tracking-tight {
+    letter-spacing: -0.035em !important;
 }
 
 .btn-hero-primary {
@@ -112,80 +145,42 @@ h1, h2, h3, h4, h5, h6 {
     border: none;
     color: #ffffff;
     box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.45);
+    transition: all 0.22s ease-in-out;
 }
 
 .btn-hero-primary:hover {
     background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%);
     color: #ffffff;
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px -5px rgba(37, 99, 235, 0.55);
+    box-shadow: 0 14px 30px -5px rgba(37, 99, 235, 0.6);
 }
 
 .btn-hero-ghost {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     color: #f8fafc;
     backdrop-filter: blur(8px);
+    transition: all 0.22s ease-in-out;
 }
 
 .btn-hero-ghost:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
     color: #ffffff;
     transform: translateY(-2px);
 }
 
-/* Hero Product Preview Mockup */
-.hero-preview-wrapper {
-    position: relative;
-}
-
-.hero-preview-card {
-    background: rgba(15, 23, 42, 0.82);
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    border-radius: 1.25rem;
-    backdrop-filter: blur(18px);
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-    overflow: hidden;
-}
-
-.hero-preview-header {
-    background: rgba(255, 255, 255, 0.04);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
-}
-
-.score-ring-mini {
-    width: 78px;
-    height: 78px;
-    border-radius: 50%;
-    background: conic-gradient(#10b981 0% 88%, rgba(148, 163, 184, 0.2) 88% 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.score-ring-mini-inner {
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    background: #0f172a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.floating-coach-tip {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(37, 99, 235, 0.16) 100%);
-    border: 1px solid rgba(52, 211, 153, 0.35);
-    border-radius: 0.9rem;
-    animation: subtleFloat 5s ease-in-out infinite;
-}
-
-@keyframes subtleFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-4px); }
+/* Minimalist Step Card Badge */
+.step-number-minimal {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50rem;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    display: inline-block;
 }
 
 /* Landing Feature & Step Cards */
