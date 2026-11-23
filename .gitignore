@@ -41,6 +41,11 @@ TestResults/
 *.mdf
 *.ldf
 *.ndf
+*.bak
+
+# Submission archives & Staging folders
+*.zip
+AI_Resume_Analyzer_Submission/
 
 # Operating System files
 .DS_Store
