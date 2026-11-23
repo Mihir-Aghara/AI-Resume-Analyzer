@@ -117,6 +117,74 @@ namespace AIResumeAnalyzer.Repositories
             return rows > 0;
         }
 
+        public async Task<bool> SetPasswordResetTokenAsync(string email, string token, DateTime expiresAt)
+        {
+            const string sql = @"
+                UPDATE Users
+                SET ResetToken = @ResetToken,
+                    ResetTokenExpiresAt = @ExpiresAt,
+                    UpdatedAt = SYSUTCDATETIME()
+                WHERE Email = @Email AND IsActive = 1;";
+
+            await using var conn = await _db.CreateOpenConnectionAsync();
+            await using var cmd = new SqlCommand(sql, conn);
+
+            cmd.Parameters.Add(new SqlParameter("@ResetToken", SqlDbType.NVarChar, 100) { Value = token });
+            cmd.Parameters.Add(new SqlParameter("@ExpiresAt", SqlDbType.DateTime2) { Value = expiresAt });
+            cmd.Parameters.Add(new SqlParameter("@Email", SqlDbType.NVarChar, 256) { Value = email.Trim().ToLowerInvariant() });
+
+            int rows = await cmd.ExecuteNonQueryAsync();
+            return rows > 0;
+        }
+
+        public async Task<User?> GetByPasswordResetTokenAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) return null;
+
+            const string sql = @"
+                SELECT UserId, FullName, Email, PasswordHash, PasswordSalt, Role, CreatedAt, UpdatedAt, IsActive, ResetToken, ResetTokenExpiresAt
+                FROM Users
+                WHERE ResetToken = @ResetToken
+                  AND ResetTokenExpiresAt IS NOT NULL
+                  AND ResetTokenExpiresAt > SYSUTCDATETIME()
+                  AND IsActive = 1;";
+
+            await using var conn = await _db.CreateOpenConnectionAsync();
+            await using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.Add(new SqlParameter("@ResetToken", SqlDbType.NVarChar, 100) { Value = token.Trim() });
+
+            await using var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return MapUser(reader);
+            }
+
+            return null;
+        }
+
+        public async Task<bool> ResetPasswordWithTokenAsync(string email, string token, string newHash, string newSalt)
+        {
+            const string sql = @"
+                UPDATE Users
+                SET PasswordHash = @PasswordHash,
+                    PasswordSalt = @PasswordSalt,
+                    ResetToken = NULL,
+                    ResetTokenExpiresAt = NULL,
+                    UpdatedAt = SYSUTCDATETIME()
+                WHERE Email = @Email
+                  AND IsActive = 1;";
+
+            await using var conn = await _db.CreateOpenConnectionAsync();
+            await using var cmd = new SqlCommand(sql, conn);
+
+            cmd.Parameters.Add(new SqlParameter("@PasswordHash", SqlDbType.NVarChar, 256) { Value = newHash });
+            cmd.Parameters.Add(new SqlParameter("@PasswordSalt", SqlDbType.NVarChar, 128) { Value = newSalt });
+            cmd.Parameters.Add(new SqlParameter("@Email", SqlDbType.NVarChar, 256) { Value = email.Trim().ToLowerInvariant() });
+
+            int rows = await cmd.ExecuteNonQueryAsync();
+            return rows > 0;
+        }
+
         public async Task<List<User>> GetAllUsersAsync()
         {
             const string sql = @"
@@ -157,7 +225,7 @@ namespace AIResumeAnalyzer.Repositories
 
         private static User MapUser(SqlDataReader reader)
         {
-            return new User
+            var user = new User
             {
                 UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
                 FullName = reader.GetString(reader.GetOrdinal("FullName")),
@@ -169,6 +237,21 @@ namespace AIResumeAnalyzer.Repositories
                 UpdatedAt = reader.IsDBNull(reader.GetOrdinal("UpdatedAt")) ? null : reader.GetDateTime(reader.GetOrdinal("UpdatedAt")),
                 IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"))
             };
+
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                string colName = reader.GetName(i);
+                if (colName.Equals("ResetToken", StringComparison.OrdinalIgnoreCase) && !reader.IsDBNull(i))
+                {
+                    user.ResetToken = reader.GetString(i);
+                }
+                else if (colName.Equals("ResetTokenExpiresAt", StringComparison.OrdinalIgnoreCase) && !reader.IsDBNull(i))
+                {
+                    user.ResetTokenExpiresAt = reader.GetDateTime(i);
+                }
+            }
+
+            return user;
         }
     }
 }

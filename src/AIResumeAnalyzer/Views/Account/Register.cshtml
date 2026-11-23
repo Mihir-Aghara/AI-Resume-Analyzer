@@ -25,6 +25,27 @@
 
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
 
+                    @if (ViewBag.AccountAlreadyExists == true)
+                    {
+                        <div class="alert alert-info border-0 rounded-3 p-3 mb-3 shadow-sm">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+                                <span class="fw-semibold text-dark">Account Already Exists</span>
+                            </div>
+                            <p class="small text-muted mb-3">
+                                An account is already registered with <strong>@ViewBag.ExistingEmail</strong>. You can sign in directly or reset your password if you forgot it.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a asp-action="Login" asp-route-email="@ViewBag.ExistingEmail" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                                </a>
+                                <a asp-action="ForgotPassword" asp-route-email="@ViewBag.ExistingEmail" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    <i class="bi bi-key me-1"></i>Reset Password
+                                </a>
+                            </div>
+                        </div>
+                    }
+
                     <!-- Full Name -->
                     <div class="mb-3">
                         <label asp-for="FullName" class="form-label fw-semibold small text-muted"></label>

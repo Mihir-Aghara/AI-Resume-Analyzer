@@ -34,6 +34,20 @@ namespace AIResumeAnalyzer.Tests
             Assert.False(result);
         }
 
+        [Theory]
+        [InlineData("MyPassword123", "MyPassword123 ")]
+        [InlineData("MyPassword123", " MyPassword123")]
+        [InlineData("MyPassword123", "MyPassword123\r\n")]
+        [InlineData("MyPassword123", "MyPassword123\t")]
+        [InlineData("MyPassword123", "MyPassword123\u200B")]
+        public void VerifyPassword_WithPasswordManagerPasteQuirks_ShouldVerifySuccessfully(string registerPassword, string pastedPassword)
+        {
+            var (hash, salt) = _hasher.HashPassword(registerPassword);
+            bool result = _hasher.VerifyPassword(pastedPassword, hash, salt);
+
+            Assert.True(result, $"Pasted password with whitespace/control characters should verify successfully.");
+        }
+
         [Fact]
         public void OutputSampleHashesForSeedData()
         {

@@ -76,6 +76,15 @@ namespace AIResumeAnalyzer.ViewModels
         public string Email { get; set; } = string.Empty;
     }
 
+    public class ForgotPasswordConfirmationViewModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string? FullName { get; set; }
+        public string? ResetUrl { get; set; }
+        public string? Token { get; set; }
+        public bool IsRegisteredUser { get; set; } = true;
+    }
+
     public class ResetPasswordViewModel
     {
         [Required]

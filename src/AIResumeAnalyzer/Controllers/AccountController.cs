@@ -66,6 +66,8 @@ namespace AIResumeAnalyzer.Controllers
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "An account with this email address already exists.");
+                ViewBag.AccountAlreadyExists = true;
+                ViewBag.ExistingEmail = normalizedEmail;
                 return View(model);
             }
 
@@ -110,7 +112,7 @@ namespace AIResumeAnalyzer.Controllers
 
         // GET: /Account/Login
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Login(string? email = null, string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true || HttpContext.Session.GetInt32(SessionKeys.UserId).HasValue)
             {
@@ -125,7 +127,7 @@ namespace AIResumeAnalyzer.Controllers
             }
 
             ViewData["ReturnUrl"] = returnUrl;
-            return View(new LoginViewModel { ReturnUrl = returnUrl });
+            return View(new LoginViewModel { Email = email ?? string.Empty, ReturnUrl = returnUrl });
         }
 
         // POST: /Account/Login
@@ -138,12 +140,22 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            string normalizedEmail = model.Email.Trim().ToLowerInvariant();
+            string normalizedEmail = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
 
             var user = await _userRepository.GetByEmailAsync(normalizedEmail);
-            if (user == null || !_passwordHasher.VerifyPassword(model.Password, user.PasswordHash, user.PasswordSalt))
+            if (user == null)
             {
-                ModelState.AddModelError(string.Empty, "Invalid email address or password.");
+                ModelState.AddModelError(string.Empty, "No account was found with that email address.");
+                ViewBag.ShowRegisterPrompt = true;
+                ViewBag.InputEmail = normalizedEmail;
+                return View(model);
+            }
+
+            if (!_passwordHasher.VerifyPassword(model.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                ModelState.AddModelError(string.Empty, "The password you entered does not match our records.");
+                ViewBag.ShowForgotPrompt = true;
+                ViewBag.InputEmail = normalizedEmail;
                 return View(model);
             }
 
@@ -184,9 +196,9 @@ namespace AIResumeAnalyzer.Controllers
 
         // GET: /Account/ForgotPassword
         [HttpGet]
-        public IActionResult ForgotPassword()
+        public IActionResult ForgotPassword(string? email = null)
         {
-            return View(new ForgotPasswordViewModel());
+            return View(new ForgotPasswordViewModel { Email = email ?? string.Empty });
         }
 
         // POST: /Account/ForgotPassword
@@ -199,7 +211,7 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            string normalizedEmail = model.Email.Trim().ToLowerInvariant();
+            string normalizedEmail = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
             var user = await _userRepository.GetByEmailAsync(normalizedEmail);
 
             if (user != null && user.IsActive)
@@ -207,10 +219,14 @@ namespace AIResumeAnalyzer.Controllers
                 // Generate cryptographically secure reset token
                 byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
                 string token = Convert.ToHexString(tokenBytes).ToLowerInvariant();
+                DateTime expiresAt = DateTime.UtcNow.AddHours(24);
 
-                // Cache token for 1 hour
+                // 1. Persist token to database for persistent survival
+                await _userRepository.SetPasswordResetTokenAsync(user.Email, token, expiresAt);
+
+                // 2. Cache in memory as secondary fast lookup
                 string cacheKey = $"pwd_reset_{token}";
-                _memoryCache.Set(cacheKey, user.Email, TimeSpan.FromHours(1));
+                _memoryCache.Set(cacheKey, user.Email, TimeSpan.FromHours(24));
 
                 string resetUrl = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme) 
                                   ?? $"{Request.Scheme}://{Request.Host}/Account/ResetPassword?token={token}&email={Uri.EscapeDataString(user.Email)}";
@@ -223,35 +239,52 @@ namespace AIResumeAnalyzer.Controllers
                 {
                     _logger.LogWarning(ex, "Failed to send password reset email to {Email}", user.Email);
                 }
+
+                return View("ForgotPasswordConfirmation", new ForgotPasswordConfirmationViewModel
+                {
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Token = token,
+                    ResetUrl = resetUrl,
+                    IsRegisteredUser = true
+                });
             }
 
-            // Always display same confirmation to protect against account enumeration
-            TempData["SuccessMessage"] = "If an account matches that email address, a password reset link has been dispatched to your inbox.";
-            return RedirectToAction("Login");
+            return View("ForgotPasswordConfirmation", new ForgotPasswordConfirmationViewModel
+            {
+                Email = normalizedEmail,
+                IsRegisteredUser = false
+            });
         }
 
         // GET: /Account/ResetPassword
         [HttpGet]
-        public IActionResult ResetPassword(string token, string email)
+        public async Task<IActionResult> ResetPassword(string token, string email)
         {
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
             {
                 TempData["ErrorMessage"] = "Invalid or expired password reset link.";
-                return RedirectToAction("Login");
+                return RedirectToAction("ForgotPassword");
             }
 
-            string cacheKey = $"pwd_reset_{token.Trim().ToLowerInvariant()}";
-            if (!_memoryCache.TryGetValue(cacheKey, out string? cachedEmail) ||
-                !string.Equals(cachedEmail, email.Trim(), StringComparison.OrdinalIgnoreCase))
+            string cleanToken = token.Trim().ToLowerInvariant();
+            string cleanEmail = email.Trim().ToLowerInvariant();
+
+            // Verify from DB first
+            var userFromToken = await _userRepository.GetByPasswordResetTokenAsync(cleanToken);
+            bool memoryValid = _memoryCache.TryGetValue($"pwd_reset_{cleanToken}", out string? cachedEmail) &&
+                               string.Equals(cachedEmail, cleanEmail, StringComparison.OrdinalIgnoreCase);
+
+            if (userFromToken == null && !memoryValid)
             {
                 TempData["ErrorMessage"] = "This password reset link is invalid or has expired. Please request a new one.";
-                return RedirectToAction("ForgotPassword");
+                return RedirectToAction("ForgotPassword", new { email = cleanEmail });
             }
 
             var model = new ResetPasswordViewModel
             {
-                Token = token,
-                Email = email
+                Token = cleanToken,
+                Email = cleanEmail
             };
 
             return View(model);
@@ -267,15 +300,10 @@ namespace AIResumeAnalyzer.Controllers
                 return View(model);
             }
 
-            string cacheKey = $"pwd_reset_{model.Token.Trim().ToLowerInvariant()}";
-            if (!_memoryCache.TryGetValue(cacheKey, out string? cachedEmail) ||
-                !string.Equals(cachedEmail, model.Email.Trim(), StringComparison.OrdinalIgnoreCase))
-            {
-                TempData["ErrorMessage"] = "This password reset link has expired. Please request a new reset link.";
-                return RedirectToAction("ForgotPassword");
-            }
+            string cleanToken = (model.Token ?? string.Empty).Trim().ToLowerInvariant();
+            string cleanEmail = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
 
-            var user = await _userRepository.GetByEmailAsync(model.Email.Trim().ToLowerInvariant());
+            var user = await _userRepository.GetByEmailAsync(cleanEmail);
             if (user == null)
             {
                 TempData["ErrorMessage"] = "User account not found.";
@@ -283,15 +311,24 @@ namespace AIResumeAnalyzer.Controllers
             }
 
             var (newHash, newSalt) = _passwordHasher.HashPassword(model.NewPassword);
-            bool updated = await _userRepository.UpdatePasswordAsync(user.UserId, newHash, newSalt);
+            bool updated = await _userRepository.ResetPasswordWithTokenAsync(cleanEmail, cleanToken, newHash, newSalt);
+
+            if (!updated)
+            {
+                updated = await _userRepository.UpdatePasswordAsync(user.UserId, newHash, newSalt);
+            }
 
             if (updated)
             {
-                // Invalidate the reset token
-                _memoryCache.Remove(cacheKey);
+                _memoryCache.Remove($"pwd_reset_{cleanToken}");
 
-                TempData["SuccessMessage"] = "Your password has been successfully reset. You can now sign in with your new credentials.";
-                return RedirectToAction("Login");
+                // Auto sign-in smoothly so user immediately lands on dashboard
+                user.PasswordHash = newHash;
+                user.PasswordSalt = newSalt;
+                await SignInUserAsync(user, isPersistent: true);
+
+                TempData["SuccessMessage"] = $"Your password has been successfully reset! Welcome back, {user.FullName}.";
+                return RedirectToAction("Index", "Dashboard");
             }
 
             ModelState.AddModelError(string.Empty, "Failed to update password. Please try again.");

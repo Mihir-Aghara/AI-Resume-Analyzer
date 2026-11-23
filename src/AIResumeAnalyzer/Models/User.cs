@@ -11,5 +11,7 @@ namespace AIResumeAnalyzer.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; } = true;
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiresAt { get; set; }
     }
 }

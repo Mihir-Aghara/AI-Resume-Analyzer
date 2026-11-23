@@ -76,5 +76,21 @@ namespace AIResumeAnalyzer.Tests
             Assert.True(summary.TotalAnalyses >= 1);
             Assert.True(summary.SystemAverageScore > 0);
         }
+
+        [Fact]
+        public async Task UserRepository_CanSetAndVerifyPasswordResetTokenAsync()
+        {
+            var userRepo = new UserRepository(_dbFactory);
+            string token = "test_reset_token_" + Guid.NewGuid().ToString("N");
+            DateTime expiry = DateTime.UtcNow.AddHours(2);
+
+            bool setOk = await userRepo.SetPasswordResetTokenAsync("student@college.edu", token, expiry);
+            Assert.True(setOk);
+
+            var user = await userRepo.GetByPasswordResetTokenAsync(token);
+            Assert.NotNull(user);
+            Assert.Equal("student@college.edu", user.Email);
+            Assert.Equal(token, user.ResetToken);
+        }
     }
 }

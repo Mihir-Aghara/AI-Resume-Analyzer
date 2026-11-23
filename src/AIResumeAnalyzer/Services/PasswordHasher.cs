@@ -17,8 +17,11 @@ namespace AIResumeAnalyzer.Services
                 throw new ArgumentException("Password cannot be null or empty.", nameof(password));
             }
 
+            // Normalize password by trimming accidental leading/trailing whitespace & control chars
+            string normalized = NormalizePassword(password);
+
             byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
-            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, KeySize);
+            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(normalized, salt, Iterations, Algorithm, KeySize);
 
             return (Convert.ToBase64String(hash), Convert.ToBase64String(salt));
         }
@@ -34,14 +37,43 @@ namespace AIResumeAnalyzer.Services
             {
                 byte[] salt = Convert.FromBase64String(storedSalt);
                 byte[] expectedHash = Convert.FromBase64String(storedHash);
-                byte[] actualHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, KeySize);
 
-                return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
+                // 1. Check normalized (trimmed & sanitized) password (handles password manager copy-paste whitespace)
+                string normalized = NormalizePassword(password);
+                byte[] actualHash = Rfc2898DeriveBytes.Pbkdf2(normalized, salt, Iterations, Algorithm, KeySize);
+                if (CryptographicOperations.FixedTimeEquals(actualHash, expectedHash))
+                {
+                    return true;
+                }
+
+                // 2. If different, also check raw password in case stored hash was generated without normalization
+                if (!string.Equals(password, normalized, StringComparison.Ordinal))
+                {
+                    byte[] rawActualHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, KeySize);
+                    if (CryptographicOperations.FixedTimeEquals(rawActualHash, expectedHash))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
             catch
             {
                 return false;
             }
+        }
+
+        private static string NormalizePassword(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+
+            return input
+                .Trim()
+                .Trim('\r', '\n', '\t', ' ')
+                .Replace("\u200B", "") // Zero-width space
+                .Replace("\uFEFF", "") // Zero-width no-break space
+                .Replace("\u00A0", " "); // Non-breaking space
         }
     }
 }

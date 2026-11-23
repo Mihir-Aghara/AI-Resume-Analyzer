@@ -26,6 +26,32 @@
 
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
 
+                    @if (ViewBag.ShowForgotPrompt == true)
+                    {
+                        <div class="alert alert-warning border-0 rounded-3 p-3 mb-3 d-flex align-items-center justify-content-between shadow-sm">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-key-fill text-warning fs-5"></i>
+                                <span class="small fw-semibold text-dark">Forgot your password?</span>
+                            </div>
+                            <a asp-action="ForgotPassword" asp-route-email="@ViewBag.InputEmail" class="btn btn-sm btn-dark rounded-pill fw-semibold px-3">
+                                Reset Now
+                            </a>
+                        </div>
+                    }
+
+                    @if (ViewBag.ShowRegisterPrompt == true)
+                    {
+                        <div class="alert alert-info border-0 rounded-3 p-3 mb-3 d-flex align-items-center justify-content-between shadow-sm">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-person-plus-fill text-primary fs-5"></i>
+                                <span class="small fw-semibold text-dark">No account found with this email.</span>
+                            </div>
+                            <a asp-action="Register" asp-route-email="@ViewBag.InputEmail" class="btn btn-sm btn-primary rounded-pill fw-semibold px-3">
+                                Create Account
+                            </a>
+                        </div>
+                    }
+
                     <!-- Email Address -->
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
