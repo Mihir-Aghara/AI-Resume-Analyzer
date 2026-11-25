@@ -75,10 +75,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Enable Authentication, Authorization & Session state
+// Enable Session state, Authentication & Authorization pipeline
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 // Route Web API Controllers (e.g., /api/resumes, /api/analyses, /api/users)
 app.MapControllers();

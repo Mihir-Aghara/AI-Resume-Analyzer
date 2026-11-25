@@ -229,6 +229,10 @@ namespace AIResumeAnalyzer.Controllers
                         TempData["ErrorMessage"] = "The resume could not be deleted. Please try again.";
                     }
                 }
+                else
+                {
+                    TempData["ErrorMessage"] = "The specified resume was not found or has already been deleted.";
+                }
             }
             catch (Exception ex)
             {

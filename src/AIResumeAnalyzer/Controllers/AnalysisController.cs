@@ -46,7 +46,9 @@ namespace AIResumeAnalyzer.Controllers
             var model = new AnalysisRequestViewModel
             {
                 AvailableResumes = resumes,
-                ResumeId = resumeId ?? resumes.First().ResumeId
+                ResumeId = (resumeId.HasValue && resumes.Any(r => r.ResumeId == resumeId.Value))
+                    ? resumeId.Value
+                    : resumes.First().ResumeId
             };
 
             return View(model);
